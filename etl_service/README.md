@@ -6,7 +6,7 @@
 1. Создаем файл `.env.docker` на примере `.env.example`
 2. Выполняем сборку проекта:
 ```shell
-$ make build_and_up
+$ make run
 ```
 Запускаются: 
 - база Postgres
