@@ -1,0 +1,14 @@
+async-timeout==4.0.2
+backoff==2.0.1
+certifi==2022.5.18.1
+Deprecated==1.2.13
+elasticsearch==7.14.0
+packaging==21.3
+psycopg2-binary==2.9.3
+pydantic==1.9.1
+pyparsing==3.0.9
+python-dotenv==0.20.0
+redis==4.3.3
+typing-extensions==4.2.0
+urllib3==1.26.9
+wrapt==1.14.1

@@ -20,7 +20,7 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
     if not film:
         # Если фильм не найден, отдаём 404 статус
         # Желательно пользоваться уже определёнными HTTP-статусами, которые содержат enum
-                # Такой код будет более поддерживаемым
+        # Такой код будет более поддерживаемым
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
     # Перекладываем данные из models.Film в Film

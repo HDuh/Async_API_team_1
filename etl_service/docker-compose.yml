@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  etl:
+    build:
+      context: etl_service/etl
+      dockerfile: Dockerfile
+    container_name: etl
+    depends_on:
+      - redis
+      - elasticsearch
+    restart: always
+    env_file:
+      - .env.docker
+
+  database:
+    image: postgres:13.0-alpine
+    container_name: movies_database
+    volumes:
+      - $HOME/postgresql/data:/var/lib/postgresql/data/
+    env_file:
+      - .env.docker
+    restart: always
+
+  elasticsearch:
+    build:
+      context: etl_service/etl/elastic
+      dockerfile: Dockerfile
+      args:
+        DISCOVERY_TYPE: single-node
+    container_name: elasticsearch
+    ports:
+      - '9200:9200'
+    restart: always
+    volumes:
+      - elasticdata:/usr/share/elasticsearch/data
+
+  redis:
+    image: redis:6-alpine
+    container_name: state
+    restart: always
+    volumes:
+      - redisdata:/data
+    ports:
+      - '6379:6379'
+
+
+volumes:
+  elasticdata:
+  redisdata:
+  postgres_data:
