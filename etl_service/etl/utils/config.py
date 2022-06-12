@@ -1,10 +1,11 @@
 import logging
 from typing import Callable
 
-from utils import logger_config
-from dotenv import load_dotenv
 import backoff
+from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
+
+from .logger_config import logger_etl
 
 __all__ = (
     "POSTGRES_DSL",
@@ -15,7 +16,6 @@ __all__ = (
 )
 
 load_dotenv()
-logger = logger_config.get_logger(__name__)
 
 
 class PostgresSettings(BaseSettings):
@@ -49,7 +49,7 @@ class AppSettings(BaseSettings):
 class BackoffSettings(BaseSettings):
     wait_gen: Callable = Field(backoff.expo)
     exception: type = Field(Exception)
-    logger: logging.Logger = Field(logger)
+    logger: logging.Logger = Field(logger_etl)
     max_tries: int = Field(..., env='BACKOFF_MAX_RETRIES')
 
 
@@ -57,5 +57,5 @@ class BackoffSettings(BaseSettings):
 POSTGRES_DSL = PostgresSettings().dict()
 ELASTIC_DSL = ElasticSettings().ger_settings()
 APP_CONFIG = AppSettings()
-REDIS_CONFIG = RedisSettings()
+REDIS_CONFIG = RedisSettings().dict()
 BACKOFF_CONFIG = BackoffSettings().dict()

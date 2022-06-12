@@ -1,5 +1,10 @@
 version: '3.8'
 
+volumes:
+  elasticdata:
+  redisdata:
+  postgres_data:
+
 services:
   etl:
     build:
@@ -23,11 +28,14 @@ services:
     restart: always
 
   elasticsearch:
-    build:
-      context: etl_service/etl/elastic
-      dockerfile: Dockerfile
-      args:
-        DISCOVERY_TYPE: single-node
+    image: elasticsearch:7.17.4
+#    build:
+#      context: etl_service/etl/elastic
+#      dockerfile: Dockerfile
+#      args:
+#        DISCOVERY_TYPE: single-node
+    environment:
+      - discovery.type=single-node
     container_name: elasticsearch
     ports:
       - '9200:9200'
@@ -44,8 +52,3 @@ services:
     ports:
       - '6379:6379'
 
-
-volumes:
-  elasticdata:
-  redisdata:
-  postgres_data:

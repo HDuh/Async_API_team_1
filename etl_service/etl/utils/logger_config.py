@@ -1,20 +1,21 @@
 import logging
-from typing import Any, Type
+from typing import ClassVar
 
-# _log_format: str = "%(asctime)s [%(levelname)s]: %(message)s  | " \
-#                    " %(name)s  (%(filename)s).%(funcName)s(%(lineno)d)"
-_log_format: str = "%(asctime)s [%(levelname)s]: %(message)s "
+from pydantic import BaseSettings, Field
 
-
-def get_stream_handler() -> logging.StreamHandler:
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter(_log_format,
-                                                  datefmt='%d.%m.%Y %I:%M:%S'))
-    return stream_handler
+__all__ = (
+    'logger_etl',
+)
 
 
-def get_logger(name: Any) -> Type[logging.getLogger]:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    logger.addHandler(get_stream_handler())
-    return logger
+class LoggerSettings(BaseSettings):
+    format: str = Field('''%(asctime)s [%(levelname)s]: %(message)s  |  
+    %(name)s  (%(filename)s).%(funcName)s(%(lineno)d)''')
+    datefmt: str = Field('%Y-%m-%d %H:%M:%S')
+    level: int = Field(logging.INFO)
+    handlers: ClassVar = Field(default_factory=logging.StreamHandler)
+
+
+LOGGER_SETTINGS = LoggerSettings().dict()
+logging.basicConfig(**LOGGER_SETTINGS)
+logger_etl = logging.getLogger('logger_etl')

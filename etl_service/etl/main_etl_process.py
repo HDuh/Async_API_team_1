@@ -1,53 +1,50 @@
 import time
 import warnings
-from datetime import datetime
 
 import backoff
-
-from utils import logger_config
-from utils.config import REDIS_CONFIG, APP_CONFIG, BACKOFF_CONFIG
-from elastic import ElasticController
 from elasticsearch import ElasticsearchDeprecationWarning
+
+from elastic import ElasticController
 from postgres import PostgresController
-from state.redis_state import RedisState
-
-# Ужаление бесячего ворнинга об устаревших методах
-warnings.filterwarnings("ignore", category=ElasticsearchDeprecationWarning)
-
-# Подлючение своего логгера
-logger = logger_config.get_logger(__name__)
-
-# Определение хранилища состояний для индексов
-state = RedisState(config=REDIS_CONFIG)
-
-sleep_time = APP_CONFIG.sleep_time
-indexes = APP_CONFIG.elastic_indexes
+from redis_storage import RedisState
+from utils import APP_CONFIG, BACKOFF_CONFIG, logger_etl
 
 
 @backoff.on_exception(**BACKOFF_CONFIG)
+def get_from_postgres(index: str, timestamp: str) -> list:
+    return postgres_db(index, timestamp)
+
+
+@backoff.on_exception(**BACKOFF_CONFIG)
+def send_to_elastic(index: str, data, timestamp) -> None:
+    elasticsearch_db(index, data, timestamp)
+
+
+@backoff.on_exception(**BACKOFF_CONFIG)
+def get_last_update(index: str):
+    return state(f"{index}_state")
+
+
 def start_monitoring() -> None:
     """
     Функция запускает процесс проверки обновлений в Postgres
     для каждого индекса и загружает обновленные строки в ES
     """
-
     while True:
-        logger.info("Sync in progress >>>  ")
+        logger_etl.info("Sync in progress >>>  ")
         for index_i in indexes:
-            current_state_for_index = state.get_state(f"{index_i}_state",
-                                                      default=datetime.min)
-            pg_db = PostgresController()
-            es_db = ElasticController(index_i, state)
-
-            # extract from PG
-            data = pg_db(index_i, current_state_for_index)
-
-            # transform and load to Elastic
-            es_db(data)
-
-        logger.info(f'Sleep for {sleep_time} sec.')
+            current_state_for_index = get_last_update(index_i)
+            if data := get_from_postgres(index_i, current_state_for_index):
+                send_to_elastic(index_i, data, state)
+        logger_etl.info(f'Sleep for {sleep_time} sec.')
         time.sleep(sleep_time)
 
 
 if __name__ == '__main__':
+    warnings.filterwarnings("ignore", category=ElasticsearchDeprecationWarning)
+    sleep_time = APP_CONFIG.sleep_time
+    indexes = APP_CONFIG.elastic_indexes
+    postgres_db = PostgresController()
+    elasticsearch_db = ElasticController()
+    state = RedisState()
     start_monitoring()
