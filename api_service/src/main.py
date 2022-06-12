@@ -10,8 +10,8 @@ from db import elastic, redis
 
 app = FastAPI(
     title=config.PROJECT_NAME,
-    docs_url='/api/openapi',
-    openapi_url='/api/openapi.json',
+    docs_url='/api_service/openapi',
+    openapi_url='/api_service/openapi.json',
     default_response_class=ORJSONResponse,
 )
 
@@ -31,7 +31,7 @@ async def shutdown():
 
 # Подключаем роутер к серверу, указав префикс /v1/films
 # Теги указываем для удобства навигации по документации
-app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
+app.include_router(films.router, prefix='/api_service/v1/films', tags=['films'])
 
 if __name__ == '__main__':
     uvicorn.run(
