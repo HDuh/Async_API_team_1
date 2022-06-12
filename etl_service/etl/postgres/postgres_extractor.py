@@ -36,7 +36,6 @@ class PostgresController:
         """ Достает данные из подготовленного запроса - prepared_query """
         with self._cursor() as cursor:
             cursor.execute(self._prepared_query(*args))
-            # TODO: использовать COUNT Для проверки на пустоту.
             while data := cursor.fetchmany(size=packet_size):
                 yield from data
 

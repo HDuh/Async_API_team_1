@@ -11,8 +11,8 @@ from utils import APP_CONFIG, BACKOFF_CONFIG, logger_etl
 
 
 @backoff.on_exception(**BACKOFF_CONFIG)
-def get_from_postgres(index: str, timestamp: str) -> list:
-    return postgres_db(index, timestamp)
+def get_from_postgres(index: str, timestamp: str) -> tuple:
+    return tuple(postgres_db(index, timestamp))
 
 
 @backoff.on_exception(**BACKOFF_CONFIG)
@@ -36,6 +36,8 @@ def start_monitoring() -> None:
             current_state_for_index = get_last_update(index_i)
             if data := get_from_postgres(index_i, current_state_for_index):
                 send_to_elastic(index_i, data, state)
+            else:
+                logger_etl.info(f'No update for index: {index_i}')
         logger_etl.info(f'Sleep for {sleep_time} sec.')
         time.sleep(sleep_time)
 
