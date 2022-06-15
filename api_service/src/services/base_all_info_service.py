@@ -1,5 +1,4 @@
-import json
-
+import orjson
 from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 
@@ -9,10 +8,11 @@ CACHE_EXPIRE_IN_SECONDS = 300
 
 
 class BaseAllInfoService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch, index: str):
+    index = None
+
+    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
         self.elastic = elastic
-        self.index = index
 
     async def get_all_data(self):
         """Процесс получения всех данных"""
@@ -30,10 +30,11 @@ class BaseAllInfoService:
         if not data:
             return
         model = ModelsController[self.index].value
-        result = [model.parse_raw(item) for item in json.loads(data)]
+        result = [model.parse_raw(item) for item in orjson.loads(data)]
         return result
 
-    async def get_all_data_from_elastic(self):
+    async def get_all_data_from_elastic(self, filter: str = None, sort: str = None):
+        # page_size: int, page_number: int, sorting: str, filter: str
         """Получение всех данных из эластика"""
         try:
             doc = await self.elastic.search(index=self.index, body={'query': {'match_all': {}}})
@@ -44,5 +45,5 @@ class BaseAllInfoService:
 
     async def put_all_to_cache(self, all_data):
         await self.redis.set(f'all_{self.index}',
-                             json.dumps([item.json() for item in all_data]),
+                             orjson.dumps([item.json() for item in all_data]).decode('utf-8'),
                              expire=CACHE_EXPIRE_IN_SECONDS)

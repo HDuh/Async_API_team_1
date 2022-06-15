@@ -11,20 +11,20 @@ from db.redis import get_redis
 
 
 class GenreService(BaseDetailInfoService):
-    pass
+    index = 'genres'
 
 
 class GenresService(BaseAllInfoService):
-    pass
+    index = 'genres'
 
 
 @lru_cache()
 def get_genre_service(redis: Redis = Depends(get_redis),
                       elastic: AsyncElasticsearch = Depends(get_elastic), ) -> GenreService:
-    return GenreService(redis, elastic, 'genres')
+    return GenreService(redis, elastic)
 
 
 @lru_cache()
 def get_genres_service(redis: Redis = Depends(get_redis),
                        elastic: AsyncElasticsearch = Depends(get_elastic), ) -> GenresService:
-    return GenresService(redis, elastic, 'genres')
+    return GenresService(redis, elastic)

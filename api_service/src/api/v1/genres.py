@@ -1,3 +1,4 @@
+import uuid
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,18 +10,15 @@ router = APIRouter()
 
 
 class Genre(BaseModel):
-    id: str
+    id: uuid.UUID
     name: str
 
 
-# Внедряем GenreService с помощью Depends(get_film_service)
 @router.get('/{genre_id}', response_model=Genre)
 async def genre_details(genre_id: str, genre_service: GenreService = Depends(get_genre_service)) -> Genre:
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
-        # Если фильм не найден, отдаём 404 статус
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
-    # Перекладываем данные из models.Genre в Genre
     return Genre(id=genre.id, name=genre.name)
 
 
@@ -28,5 +26,5 @@ async def genre_details(genre_id: str, genre_service: GenreService = Depends(get
 async def all_genres(genres_service: GenresService = Depends(get_genres_service)) -> list[Genre]:
     genres = await genres_service.get_all_data()
     if not genres:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genres not found')
     return [Genre(id=genre.id, name=genre.name) for genre in genres]

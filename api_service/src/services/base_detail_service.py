@@ -7,10 +7,12 @@ CACHE_EXPIRE_IN_SECONDS = 300
 
 
 class BaseDetailInfoService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch, index: str):
+    index = None
+
+    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
         self.elastic = elastic
-        self.index = index
+        # self.index = index
 
     async def get_by_id(self, idx):
         """Получение данных по id"""
