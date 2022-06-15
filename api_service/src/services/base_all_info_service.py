@@ -7,6 +7,7 @@ from models import ModelsController
 CACHE_EXPIRE_IN_SECONDS = 300
 
 
+# TODO: при записи в кэш учитывать параметр сортировки и фильтрации (all_films_sorted_filter)
 class BaseAllInfoService:
     index = None
 
@@ -14,11 +15,11 @@ class BaseAllInfoService:
         self.redis = redis
         self.elastic = elastic
 
-    async def get_all_data(self):
+    async def get_all_data(self, sort: str = None):
         """Процесс получения всех данных"""
         all_data = await self.get_all_data_from_cache()
         if not all_data:
-            all_data = await self.get_all_data_from_elastic()
+            all_data = await self.get_all_data_from_elastic(sort=sort)
             if not all_data:
                 return
             await self.put_all_to_cache(all_data)
@@ -33,6 +34,7 @@ class BaseAllInfoService:
         result = [model.parse_raw(item) for item in orjson.loads(data)]
         return result
 
+    # TODO: для того чтобы реализовать сортирку и фильтрацию в классах FilmsService, Persons, Genres переопределить данный метод.
     async def get_all_data_from_elastic(self, filter: str = None, sort: str = None):
         # page_size: int, page_number: int, sorting: str, filter: str
         """Получение всех данных из эластика"""

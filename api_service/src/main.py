@@ -1,3 +1,5 @@
+import logging
+
 import aioredis
 import uvicorn
 from elasticsearch import AsyncElasticsearch
@@ -6,6 +8,7 @@ from fastapi.responses import ORJSONResponse
 
 from api.v1 import films, genres, persons
 from core import config
+from core.logger import LOGGING
 from db import elastic, redis
 
 app = FastAPI(
@@ -39,6 +42,8 @@ if __name__ == '__main__':
     uvicorn.run(
         'main:app',
         host='0.0.0.0',
-        port=8000,
         reload=True,
+        port=8000,
+        log_config=LOGGING,
+        log_level=logging.DEBUG,
     )
