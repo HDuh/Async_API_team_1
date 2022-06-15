@@ -28,3 +28,19 @@ def get_genre_service(redis: Redis = Depends(get_redis),
 def get_genres_service(redis: Redis = Depends(get_redis),
                        elastic: AsyncElasticsearch = Depends(get_elastic), ) -> GenresService:
     return GenresService(redis, elastic)
+
+
+query_body = {
+    "query": {
+        "nested": {
+            "path": "genre",
+            "query": {
+                "bool": {
+                    "must": [
+                        {"match": {"genre.name": '%s'}}
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,3 +1,4 @@
+import uuid
 from http import HTTPStatus
 from typing import Optional, Union
 
@@ -5,13 +6,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import Page, paginate, add_pagination
 from pydantic import BaseModel, validator
 
-from services.film import FilmService, get_film_service
+from services import FilmService, get_film_service, FilmsService, get_films_service
 
 router = APIRouter()
 
 
 class IdMixin(BaseModel):
-    id: str
+    id: uuid.UUID
 
 
 class Person(IdMixin):
@@ -54,22 +55,20 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
 
 
 @router.get('', response_model=Page[FilmForSearch])
-async def sorted_films(film_service: FilmService = Depends(get_film_service),
+async def sorted_films(films_service: FilmsService = Depends(get_films_service),
                        sort: Union[str, None] = None,
                        genre_id: Union[str, None] = Query(default=None,
                                                           alias="filter[genre]")):
-    if sort:
-        films = await film_service.get_films_list(sort)
-        if not films:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
-        result = [FilmForSearch(id=film.id,
-                                title=film.title,
-                                imdb_rating=film.imdb_rating) for film in films]
-
-        return paginate(result)
-
+    films = await films_service.get_all_data(sort)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
+    result = [FilmForSearch(id=film.id,
+                            title=film.title,
+                            imdb_rating=film.imdb_rating) for film in films]
     if genre_id:
         return genre_id
+
+    return paginate(result)
 
 
 add_pagination(router)

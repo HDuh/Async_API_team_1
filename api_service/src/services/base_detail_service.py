@@ -43,4 +43,4 @@ class BaseDetailInfoService:
         return model(**doc['_source'])
 
     async def put_to_cache(self, model):
-        await self.redis.set(model.id, model.json(), expire=CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.set(str(model.id), model.json(), expire=CACHE_EXPIRE_IN_SECONDS)
