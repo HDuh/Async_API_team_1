@@ -3,7 +3,6 @@ import uuid
 from typing import Optional, Union
 
 import orjson
-
 from pydantic import BaseModel
 
 __all__ = (

@@ -1,10 +1,12 @@
-from http import HTTPStatus
 import uuid
+from http import HTTPStatus
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from services import PersonService, get_person_service, PersonsService, get_persons_service
-    # get_films_service
+
+# get_films_service
 
 router = APIRouter()
 
@@ -39,7 +41,6 @@ async def all_persons(persons_service: PersonsService = Depends(get_persons_serv
         Person(id=person.id, full_name=person.full_name, role=person.role, films_ids=person.film_ids)
         for person in persons
     ]
-
 
 # @router.get('/{person_id}/film', response_model=PersonFilm)
 # async def person_film(person_id: str, person_service: PersonService = Depends(get_person_service),
