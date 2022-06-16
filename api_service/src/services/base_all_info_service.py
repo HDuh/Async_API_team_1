@@ -65,5 +65,4 @@ class BaseAllInfoService:
         for parameter in args:
             if parameter:
                 key += f'_{parameter}'
-        print(key)
         return key
