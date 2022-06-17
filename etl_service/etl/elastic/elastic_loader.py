@@ -44,7 +44,6 @@ class ElasticController:
             index=index
         )
 
-        # TODO: подумать как упростить
         # затраченное время на загрузку данных в ES
         time_delta = round((time.time() - start_time) * 1000, 2)
 

@@ -2,17 +2,15 @@ import logging
 
 import aioredis
 import uvicorn
-from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from api.v1 import films, genres, persons
-from core import config
-from core.logger import LOGGING
-from db import elastic, redis
+from core import PROJECT_NAME, LOGGING, REDIS_CONFIG
+from db import redis
 
 app = FastAPI(
-    title=config.PROJECT_NAME,
+    title=PROJECT_NAME,
     docs_url='/api_service/openapi',
     openapi_url='/api_service/openapi.json',
     default_response_class=ORJSONResponse,
@@ -22,15 +20,13 @@ app = FastAPI(
 @app.on_event('startup')
 async def startup():
     # TODO: подключить кэш
-    redis.redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20)
-    elastic.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
+    redis.redis = await aioredis.create_redis_pool(REDIS_CONFIG, minsize=10, maxsize=20)
 
 
 @app.on_event('shutdown')
 async def shutdown():
     redis.redis.close()
     await redis.redis.wait_closed()
-    await elastic.es.close()
 
 
 app.include_router(films.router, prefix='/api_service/v1/films', tags=['films'])

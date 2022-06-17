@@ -1,60 +1,49 @@
 import uuid
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from models import Person
+from fastapi import APIRouter, HTTPException
 
-from services import PersonsService, get_persons_service, FilmsService,  get_films_service
+from models import Person, Film
+from .schemas import PersonApiSchema, PersonFilmApiSchema
 
 router = APIRouter()
 
 
-class PersonApiSchema(BaseModel):
-    id: uuid.UUID
-    full_name: str
-    role: list[str]
-    film_ids: list[uuid.UUID]
+@router.get('', response_model=list[PersonApiSchema])
+# @cache()
+async def all_persons() -> list[PersonApiSchema]:
+    """Получение всех персон"""
+    persons = await Person.manager.filter()
+    if not persons:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='persons not found')
+    return [PersonApiSchema(**person.dict()) for person in persons]
 
 
-class PersonFilm(BaseModel):
-    id: uuid.UUID
-    title: str
-    imdb_rating: float
+@router.get('/search', response_model=list[PersonApiSchema])
+# @cache()
+async def search_in_persons(query: str | None = None) -> list[PersonApiSchema]:
+    """Поиск по персонам"""
+    persons = await Person.manager.filter(query=query)
+    if not persons:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='persons not found')
+    return [PersonApiSchema(**person.dict()) for person in persons]
 
 
 @router.get('/{person_id}', response_model=PersonApiSchema)
 # @cache()
-async def person_details(person_id: uuid.UUID) -> PersonApiSchema:
-    person = await Person.manager().get(person_id)
+async def detailed_person_info(person_id: uuid.UUID) -> PersonApiSchema:
+    """Получение конкретной персоны по id"""
+    person = await Person.manager.get(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
-    return PersonApiSchema(id=person.id, full_name=person.full_name, role=person.role, film_ids=person.film_ids)
+    return PersonApiSchema(**person.dict())
 
 
-@router.get('', response_model=list[PersonApiSchema])
+@router.get('/{person_id}/film', response_model=list[PersonFilmApiSchema])
 # @cache()
-async def all_persons(persons_service: PersonsService = Depends(get_persons_service)) -> list[PersonApiSchema]:
-    persons = await persons_service.get_all_data()
-    if not persons:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='persons not found')
-    return [
-        PersonApiSchema(id=person.id, full_name=person.full_name, role=person.role, film_ids=person.film_ids)
-        for person in persons
-    ]
-
-
-# @router.get('/{person_id}/film', response_model=list[PersonFilm])
-# # @cache()
-# async def person_film(person_id: str, person_service: PersonService = Depends(get_person_service),
-#                       films_service: FilmsService = Depends(get_films_service)):
-#     person = await person_service.get_by_id(person_id)
-#     if not person:
-#         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
-#     all_films = await films_service.get_all_data()
-#     person_films = [
-#         PersonFilm(id=film.id, title=film.title, imdb_rating=film.imdb_rating)
-#         for film in all_films
-#         if film.id in person.film_ids
-#     ]
-#     return person_films
+async def person_films(person_id: uuid.UUID) -> list[PersonFilmApiSchema]:
+    """Получение фильмов с участием конкретной персоны по id"""
+    all_films = await Film.manager.filter(person=person_id)
+    if not all_films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
+    return [PersonFilmApiSchema(**film.dict()) for film in all_films]
