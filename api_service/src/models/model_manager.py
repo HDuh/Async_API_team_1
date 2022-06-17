@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
-from elasticsearch_dsl import Search, Q
-from core import config
+from pydantic import BaseModel
+
+from core import ELASTIC_CONFIG
+from .query_manager import QueriesManager
 
 
 @dataclass
@@ -12,27 +14,27 @@ class ModelManager:
     model: Any
 
     def __post_init__(self):
-        self.es = AsyncElasticsearch(hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
+        self.es = AsyncElasticsearch(ELASTIC_CONFIG)
 
-    # TODO: открывается коннект сразу при создании инстанса класса
+    async def filter(self, sort: str = None, **kwargs) -> list[BaseModel]:
+        """Выполнение запроса в Elasticsearch с использованием сортировки и параметров поиска"""
+        res = await self.es.search(
+            index=self.model.Config.es_index,
+            body=QueriesManager.create_query(self.model, **kwargs),
+            sort=QueriesManager.sorting_query(sort),
+        )
+        await self.__close()
+        return [self.model(**item['_source']) for item in res['hits']['hits']]
 
-    def filter(self, **kwargs):
-        # print(1)
-        # # elastic_dsl использоавать Q объекты
-        # a = Search(using=self.es, index=self.model.Config.es_index).query('match_all', title={})
-        # return
-        # for item in data:
-        #     yield self.model(**item)
-        ...
-
-    async def get(self, idx: uuid.UUID):
+    async def get(self, idx: uuid.UUID) -> BaseModel | None:
+        """Выполнение запроса в Elasticsearch по конкретному id"""
         try:
             data = await self.es.get(self.model.Config.es_index, idx)
+            await self.__close()
             return self.model(**data['_source'])
         except NotFoundError:
             return
 
-
-class QueriesManager:
-    def __init__(self, model, **kwargs):
-        self.model = model
+    async def __close(self):
+        """Закрытие подключения Elasticsearch"""
+        await self.es.close()
