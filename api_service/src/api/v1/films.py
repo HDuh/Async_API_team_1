@@ -1,32 +1,42 @@
+import uuid
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Query
 
-from services.film import FilmService, get_film_service
+from models import Film
+from .schemas import FilmApiShortSchema, FilmApiSchema
 
 router = APIRouter()
 
 
-class Film(BaseModel):
-    id: str
-    title: str
+@router.get('', response_model=list[FilmApiShortSchema])
+# @cache()
+async def all_films(sort: str | None = None,
+                    genre_id: uuid.UUID | None = Query(default=None,
+                                                       alias="filter[genre]")) -> list[FilmApiShortSchema]:
+    """Получение всех фильмов"""
+    films = await Film.manager.filter(sort=sort, genre=genre_id)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
+    return [FilmApiShortSchema(**film.dict()) for film in films]
 
 
-# Внедряем FilmService с помощью Depends(get_film_service)
-@router.get('/{film_id}', response_model=Film)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
-    film = await film_service.get_by_id(film_id)
+@router.get('/search', response_model=list[FilmApiShortSchema])
+# @cache()
+async def search_in_films(query: str | None = None) -> list[FilmApiShortSchema]:
+    """Поиск по фильмам"""
+    films = await Film.manager.filter(query=query)
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
+    return [FilmApiShortSchema(**film.dict()) for film in films]
+
+
+@router.get('/{film_id}', response_model=FilmApiSchema)
+# @cache()
+async def detailed_film_info(film_id: uuid.UUID) -> FilmApiSchema:
+    """Получение конкретного фильма по id"""
+    film = await Film.manager.get(film_id)
     if not film:
-        # Если фильм не найден, отдаём 404 статус
-        # Желательно пользоваться уже определёнными HTTP-статусами, которые содержат enum
-        # Такой код будет более поддерживаемым
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
-    # Перекладываем данные из models.Film в Film
-    # Обратите внимание, что у модели бизнес-логики есть поле description
-        # Которое отсутствует в модели ответа API.
-        # Если бы использовалась общая модель для бизнес-логики и формирования ответов API
-        # вы бы предоставляли клиентам данные, которые им не нужны
-        # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.id, title=film.title)
+    return FilmApiSchema(**film.dict())

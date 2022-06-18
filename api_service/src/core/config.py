@@ -1,7 +1,23 @@
 import os
+import warnings
 from logging import config as logging_config
 
-from core.logger import LOGGING
+from dotenv import load_dotenv
+from elasticsearch import ElasticsearchDeprecationWarning
+from pydantic import BaseSettings, Field
+
+from .logger import LOGGING
+
+__all__ = (
+    'PROJECT_NAME',
+    'BASE_DIR',
+    'ELASTIC_CONFIG',
+    'REDIS_CONFIG',
+)
+
+load_dotenv()
+# Глушим Elasticsearch built-in security features are not enabled
+warnings.filterwarnings("ignore", category=ElasticsearchDeprecationWarning)
 
 # Применяем настройки логирования
 logging_config.dictConfig(LOGGING)
@@ -9,13 +25,27 @@ logging_config.dictConfig(LOGGING)
 # Название проекта. Используется в Swagger-документации
 PROJECT_NAME = os.getenv('PROJECT_NAME', 'movies')
 
-# Настройки Redis
-REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
-REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
-
-# Настройки Elasticsearch
-ELASTIC_HOST = os.getenv('ELASTIC_HOST', '127.0.0.1')
-ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9200))
-
 # Корень проекта
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# Настройки Elasticsearch
+class ElasticSettings(BaseSettings):
+    host: str = Field(..., env="ELASTICSEARCH_HOST")
+    port: int = Field(..., env="ELASTICSEARCH_PORT")
+
+    def ger_settings(self):
+        return [f"{self.host}:{self.port}"]
+
+
+# Настройки Redis
+class RedisSettings(BaseSettings):
+    host: str = Field(..., env="REDIS_HOST")
+    port: int = Field(..., env="REDIS_PORT")
+
+    def get_settings(self):
+        return self.host, self.port
+
+
+ELASTIC_CONFIG = ElasticSettings().ger_settings()
+REDIS_CONFIG = RedisSettings().get_settings()

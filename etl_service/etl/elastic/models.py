@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, validator
 
-
+# TODO: это не миксины. Либо менять нейминг, либо убирать.
 class IdMixin(BaseModel):
     id: UUID
 
