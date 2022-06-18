@@ -16,13 +16,13 @@ destroy:
 	docker-compose down -v $(c)
 
 stop:
-	docker-compose -f docker-compose.yml stop
+	docker-compose stop
 
 start:
-	docker-compose -f docker-compose.yml start
+	docker-compose start
 
 logs:
-	docker-compose -f docker-compose.yml logs --tail=100
+	docker-compose logs --tail=100
 
 drop-state:
 	docker-compose exec redis redis-cli FLUSHDB

@@ -17,12 +17,15 @@ class ModelManager:
         """Открытие подключения Elasticsearch"""
         self.es = AsyncElasticsearch(ELASTIC_CONFIG)
 
-    async def filter(self, sort: str = None, **kwargs) -> list[BaseModel]:
+    async def filter(self, sort: str = None, page: int = 1, size: int = 50, **kwargs) -> list[BaseModel]:
         """Выполнение запроса в Elasticsearch с использованием сортировки и параметров поиска"""
+
         res = await self.es.search(
             index=self.model.Config.es_index,
             body=QueriesManager.create_query(self.model, **kwargs),
             sort=QueriesManager.transform_sorting(sort),
+            from_=(page-1) * size + 1,
+            size=size,
         )
         await self.__close()
         return [self.model(**item['_source']) for item in res['hits']['hits']]

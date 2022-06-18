@@ -55,9 +55,9 @@ class Person(BaseModel, ManagerMixIn):
 
 class Film(BaseModel, ManagerMixIn):
     id: uuid.UUID = Field(..., )
-    title: str = Field(..., )
+    title: str | None = Field(..., )
     imdb_rating: float | None = Field(..., )
-    description: str = Field(default=None)
+    description: str | None = Field(default=None)
     genre: list[Genre] = Field(default=[])
     actors: list[Person] = Field(default=[])
     writers: list[Person] = Field(default=[])
