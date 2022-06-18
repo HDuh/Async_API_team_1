@@ -1,5 +1,5 @@
-aioredis==1.3.1
-elasticsearch==7.14.0
+aioredis==2.0.1
+elasticsearch[async]==7.14
 fastapi==0.78.0
 orjson==3.7.2
 pydantic==1.9.1

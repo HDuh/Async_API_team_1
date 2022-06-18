@@ -14,7 +14,7 @@ class FilmApiSchema(BaseModel):
     id: uuid.UUID
     title: str
     imdb_rating: float
-    description: str
+    description: str = None
     genre: list[Genre]
     actors: list[Person]
     writers: list[Person]
