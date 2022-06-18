@@ -2,7 +2,9 @@ import uuid
 from http import HTTPStatus
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi_cache.decorator import cache
 
+from core import CACHE_EXPIRE_IN_SECONDS
 from models import Film
 from .schemas import FilmApiShortSchema, FilmApiSchema
 
@@ -10,7 +12,7 @@ router = APIRouter()
 
 
 @router.get('', response_model=list[FilmApiShortSchema])
-# @cache()
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def all_films(sort: str | None = None,
                     genre_id: uuid.UUID | None = Query(default=None,
                                                        alias="filter[genre]")) -> list[FilmApiShortSchema]:
@@ -22,7 +24,7 @@ async def all_films(sort: str | None = None,
 
 
 @router.get('/search', response_model=list[FilmApiShortSchema])
-# @cache()
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def search_in_films(query: str | None = None) -> list[FilmApiShortSchema]:
     """Поиск по фильмам"""
     films = await Film.manager.filter(query=query)
@@ -32,7 +34,7 @@ async def search_in_films(query: str | None = None) -> list[FilmApiShortSchema]:
 
 
 @router.get('/{film_id}', response_model=FilmApiSchema)
-# @cache()
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def detailed_film_info(film_id: uuid.UUID) -> FilmApiSchema:
     """Получение конкретного фильма по id"""
     film = await Film.manager.get(film_id)

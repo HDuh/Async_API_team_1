@@ -15,7 +15,7 @@ class QueriesManager:
         return {'query': query}
 
     @classmethod
-    def sorting_query(cls, sorting_parameter: str):
+    def transform_sorting(cls, sorting_parameter: str):
         """Трансформация параметра сортировки в формат Elasticsearch"""
         if not sorting_parameter:
             return

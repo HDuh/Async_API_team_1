@@ -13,6 +13,7 @@ __all__ = (
     'BASE_DIR',
     'ELASTIC_CONFIG',
     'REDIS_CONFIG',
+    'CACHE_EXPIRE_IN_SECONDS',
 )
 
 load_dotenv()
@@ -28,6 +29,9 @@ PROJECT_NAME = os.getenv('PROJECT_NAME', 'movies')
 # Корень проекта
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Время жизни в кеше
+CACHE_EXPIRE_IN_SECONDS = 300
+
 
 # Настройки Elasticsearch
 class ElasticSettings(BaseSettings):
@@ -35,7 +39,7 @@ class ElasticSettings(BaseSettings):
     port: int = Field(..., env="ELASTICSEARCH_PORT")
 
     def ger_settings(self):
-        return [f"{self.host}:{self.port}"]
+        return [f'{self.host}:{self.port}']
 
 
 # Настройки Redis
@@ -44,7 +48,7 @@ class RedisSettings(BaseSettings):
     port: int = Field(..., env="REDIS_PORT")
 
     def get_settings(self):
-        return self.host, self.port
+        return f'redis://{self.host}:{self.port}'
 
 
 ELASTIC_CONFIG = ElasticSettings().ger_settings()
