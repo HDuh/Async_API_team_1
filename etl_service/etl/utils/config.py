@@ -31,7 +31,7 @@ class ElasticSettings(BaseSettings):
     port: int = Field(..., env="ELASTICSEARCH_PORT")
 
     def ger_settings(self):
-        return [f"{self.host}:{self.port}"]
+        return [f"http://{self.host}:{self.port}"]
 
 
 class RedisSettings(BaseSettings):

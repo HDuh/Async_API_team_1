@@ -1,13 +1,6 @@
-FROM rust:1.31
-
-WORKDIR /etl_service
-
-RUN cargo install --path .
-
-
 FROM python:3.10-alpine as builder
 
-WORKDIR /api_service
+WORKDIR /etl_service
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -20,5 +13,4 @@ COPY ./requirements.txt .
 RUN pip install --upgrade pip --no-cache-dir\
     && pip install -r requirements.txt --no-cache-dir
 COPY . .
-
-CMD python ./src/main.py
+CMD python ./etl/main_etl_process.py
