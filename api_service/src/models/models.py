@@ -3,7 +3,7 @@ from functools import reduce
 
 import orjson
 from elasticsearch_dsl import Q
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from .model_manager import ModelManager
 
@@ -56,12 +56,18 @@ class Person(BaseModel, ManagerMixIn):
 class Film(BaseModel, ManagerMixIn):
     id: uuid.UUID = Field(..., )
     title: str = Field(..., )
-    imdb_rating: float = Field(default=0.0)
+    imdb_rating: float | None = Field(..., )
     description: str = Field(default=None)
     genre: list[Genre] = Field(default=[])
     actors: list[Person] = Field(default=[])
     writers: list[Person] = Field(default=[])
     directors: list[Person] = Field(default=[])
+
+    @validator('imdb_rating')
+    def rating_validator(cls, rating: float | None) -> float:
+        if not rating:
+            return 0.0
+        return rating
 
     class Config:
         json_loads = orjson.loads
