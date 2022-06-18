@@ -2,7 +2,9 @@ import uuid
 from http import HTTPStatus
 
 from fastapi import APIRouter, HTTPException
+from fastapi_cache.decorator import cache
 
+from core import CACHE_EXPIRE_IN_SECONDS
 from models import Person, Film
 from .schemas import PersonApiSchema, PersonFilmApiSchema
 
@@ -10,7 +12,7 @@ router = APIRouter()
 
 
 @router.get('', response_model=list[PersonApiSchema])
-# @cache()
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def all_persons() -> list[PersonApiSchema]:
     """Получение всех персон"""
     persons = await Person.manager.filter()
@@ -20,7 +22,7 @@ async def all_persons() -> list[PersonApiSchema]:
 
 
 @router.get('/search', response_model=list[PersonApiSchema])
-# @cache()
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def search_in_persons(query: str | None = None) -> list[PersonApiSchema]:
     """Поиск по персонам"""
     persons = await Person.manager.filter(query=query)
@@ -30,7 +32,7 @@ async def search_in_persons(query: str | None = None) -> list[PersonApiSchema]:
 
 
 @router.get('/{person_id}', response_model=PersonApiSchema)
-# @cache()
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def detailed_person_info(person_id: uuid.UUID) -> PersonApiSchema:
     """Получение конкретной персоны по id"""
     person = await Person.manager.get(person_id)
@@ -40,7 +42,7 @@ async def detailed_person_info(person_id: uuid.UUID) -> PersonApiSchema:
 
 
 @router.get('/{person_id}/film', response_model=list[PersonFilmApiSchema])
-# @cache()
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def person_films(person_id: uuid.UUID) -> list[PersonFilmApiSchema]:
     """Получение фильмов с участием конкретной персоны по id"""
     all_films = await Film.manager.filter(person=person_id)

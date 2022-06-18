@@ -5,5 +5,5 @@ orjson==3.7.2
 pydantic==1.9.1
 uvicorn==0.17.6
 uvloop==0.16.0
-fastapi-redis-cache==0.2.5
 elasticsearch_dsl==7.4.0
+fastapi-cache2==0.1.8

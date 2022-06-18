@@ -4,6 +4,8 @@ import aioredis
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 
 from api.v1 import films, genres, persons
 from core import PROJECT_NAME, LOGGING, REDIS_CONFIG
@@ -19,14 +21,13 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    # TODO: подключить кэш
-    redis.redis = await aioredis.create_redis_pool(REDIS_CONFIG, minsize=10, maxsize=20)
+    redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding="utf-8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis.redis), prefix=f'{PROJECT_NAME}_cache')
 
 
 @app.on_event('shutdown')
 async def shutdown():
-    redis.redis.close()
-    await redis.redis.wait_closed()
+    await redis.redis.close()
 
 
 app.include_router(films.router, prefix='/api_service/v1/films', tags=['films'])
