@@ -19,9 +19,6 @@ async def all_films(sort: str | None = None,
                     genre_id: UUID | None = Query(default=None,
                                                   alias='filter[genre]')) -> list[FilmApiShortSchema]:
     """Получение всех фильмов"""
-    if not page:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='page is ')
-
     films = await Film.manager.filter(sort=sort, page=page, size=size, genre=genre_id)
     if not films:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
