@@ -1,11 +1,4 @@
-FROM rust:1.31
-
-WORKDIR /etl_service
-
-RUN cargo install --path .
-
-
-FROM python:3.10-alpine as builder
+FROM python:3.10-buster as builder
 
 WORKDIR /api_service
 
@@ -13,12 +6,11 @@ WORKDIR /api_service
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev --no-cache
-
 COPY ./requirements.txt .
-RUN pip install --upgrade pip --no-cache-dir\
+
+RUN pip install --upgrade pip --no-cache-dir \
     && pip install -r requirements.txt --no-cache-dir
+
 COPY . .
 
 CMD python ./src/main.py

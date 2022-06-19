@@ -15,27 +15,30 @@ services:
       - redis
       - elasticsearch
       - database
-    restart: always
     env_file:
       - .env
+    restart: always
 
-#  fastapi:
-#    build:
-#      context: ./api_service
-#      dockerfile: Dockerfile
-#    container_name: FASTAPI_team_1
-#    depends_on:
-#      - etl
-#    env_file:
-#      - .env.docker
+
+  fastapi:
+    build:
+      context: ./api_service
+      dockerfile: Dockerfile
+    container_name: FASTAPI_team_1
+    depends_on:
+      - etl
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: always
+
 
   database:
     image: postgres:13.0-alpine
     container_name: DATABASE_team_1
     volumes:
       - $HOME/postgresql/data:/var/lib/postgresql/data/
-    env_file:
-      - .env
     restart: always
 
   elasticsearch:
@@ -43,11 +46,11 @@ services:
     environment:
       - discovery.type=single-node
     container_name: ELASTICSEARCH_team_1
+    volumes:
+      - elasticdata:/usr/src/elasticsearch/data
     ports:
       - '9200:9200'
     restart: always
-    volumes:
-      - elasticdata:/usr/src/elasticsearch/data
 
   redis:
     image: redis:6-alpine
@@ -55,8 +58,6 @@ services:
     restart: always
     volumes:
       - redisdata:/data
-    env_file:
-      - .env
     ports:
       - '6379:6379'
 
