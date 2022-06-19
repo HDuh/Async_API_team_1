@@ -19,4 +19,6 @@ class QueriesManager:
         """Трансформация параметра сортировки в формат Elasticsearch"""
         if not sorting_parameter:
             return
-        return f'{sorting_parameter[1:]}:desc' if sorting_parameter.startswith('-') else f'{sorting_parameter}:asc'
+        order = 'desc' if sorting_parameter.startswith('-') else 'asc'
+        sort_field = sorting_parameter.removeprefix('-')
+        return f'{sort_field}:{order}'
