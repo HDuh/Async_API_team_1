@@ -18,7 +18,7 @@ __all__ = (
 
 load_dotenv()
 # Глушим Elasticsearch built-in security features are not enabled
-warnings.filterwarnings("ignore", category=ElasticsearchDeprecationWarning)
+warnings.filterwarnings('ignore', category=ElasticsearchDeprecationWarning)
 
 # Применяем настройки логирования
 logging_config.dictConfig(LOGGING)
@@ -35,8 +35,8 @@ CACHE_EXPIRE_IN_SECONDS = 300
 
 # Настройки Elasticsearch
 class ElasticSettings(BaseSettings):
-    host: str = Field(..., env="ELASTICSEARCH_HOST")
-    port: int = Field(..., env="ELASTICSEARCH_PORT")
+    host: str = Field(..., env='ELASTICSEARCH_HOST')
+    port: int = Field(..., env='ELASTICSEARCH_PORT')
 
     def ger_settings(self):
         return [f'{self.host}:{self.port}']
@@ -44,8 +44,8 @@ class ElasticSettings(BaseSettings):
 
 # Настройки Redis
 class RedisSettings(BaseSettings):
-    host: str = Field(..., env="REDIS_HOST")
-    port: int = Field(..., env="REDIS_PORT")
+    host: str = Field(..., env='REDIS_HOST')
+    port: int = Field(..., env='REDIS_PORT')
 
     def get_settings(self):
         return f'redis://{self.host}:{self.port}'

@@ -8,42 +8,42 @@ from pydantic import BaseSettings, Field
 from .logger_config import logger_etl
 
 __all__ = (
-    "POSTGRES_DSL",
-    "ELASTIC_DSL",
-    "APP_CONFIG",
-    "REDIS_CONFIG",
-    "BACKOFF_CONFIG",
+    'POSTGRES_DSL',
+    'ELASTIC_DSL',
+    'APP_CONFIG',
+    'REDIS_CONFIG',
+    'BACKOFF_CONFIG',
 )
 
 load_dotenv()
 
 
 class PostgresSettings(BaseSettings):
-    dbname: str = Field(..., env="POSTGRES_NAME")
-    user: str = Field(..., env="POSTGRES_USER")
-    password: str = Field(..., env="POSTGRES_PASSWORD")
-    host: str = Field(..., env="POSTGRES_HOST")
-    port: int = Field(..., env="POSTGRES_PORT")
+    dbname: str = Field(..., env='POSTGRES_NAME')
+    user: str = Field(..., env='POSTGRES_USER')
+    password: str = Field(..., env='POSTGRES_PASSWORD')
+    host: str = Field(..., env='POSTGRES_HOST')
+    port: int = Field(..., env='POSTGRES_PORT')
 
 
 class ElasticSettings(BaseSettings):
-    host: str = Field(..., env="ELASTICSEARCH_HOST")
-    port: int = Field(..., env="ELASTICSEARCH_PORT")
+    host: str = Field(..., env='ELASTICSEARCH_HOST')
+    port: int = Field(..., env='ELASTICSEARCH_PORT')
 
     def ger_settings(self):
-        return [f"http://{self.host}:{self.port}"]
+        return [f'http://{self.host}:{self.port}']
 
 
 class RedisSettings(BaseSettings):
-    host: str = Field(..., env="REDIS_HOST")
-    port: int = Field(..., env="REDIS_PORT")
+    host: str = Field(..., env='REDIS_HOST')
+    port: int = Field(..., env='REDIS_PORT')
 
 
 class AppSettings(BaseSettings):
-    batch_size: str = Field(..., env="BATCH_SIZE")
-    sleep_time: int = Field(..., env="SLEEP_TIME")
-    backoff_max_retries: int = Field(..., env="BACKOFF_MAX_RETRIES")
-    elastic_indexes: list = Field(..., env="ELASTICSEARCH_INDEXES")
+    batch_size: str = Field(..., env='BATCH_SIZE')
+    sleep_time: int = Field(..., env='SLEEP_TIME')
+    backoff_max_retries: int = Field(..., env='BACKOFF_MAX_RETRIES')
+    elastic_indexes: tuple = Field(default=('movies', 'genres', 'persons'))
 
 
 class BackoffSettings(BaseSettings):

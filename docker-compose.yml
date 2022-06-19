@@ -60,5 +60,3 @@ services:
       - redisdata:/data
     ports:
       - '6379:6379'
-
-
