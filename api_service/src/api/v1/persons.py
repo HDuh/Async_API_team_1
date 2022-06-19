@@ -13,8 +13,8 @@ router = APIRouter()
 
 @router.get('', response_model=list[PersonApiSchema])
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
-async def all_persons(page: int | None = Query(default=1, alias="page[number]", gt=0),
-                      size: int | None = Query(default=50, alias="page[size]", gt=0)) -> list[PersonApiSchema]:
+async def all_persons(page: int | None = Query(default=1, alias='page[number]', gt=0),
+                      size: int | None = Query(default=50, alias='page[size]', gt=0)) -> list[PersonApiSchema]:
     """Получение всех персон"""
     persons = await Person.manager.filter(page=page, size=size)
     if not persons:
@@ -25,8 +25,8 @@ async def all_persons(page: int | None = Query(default=1, alias="page[number]", 
 @router.get('/search', response_model=list[PersonApiSchema])
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def search_in_persons(query: str | None = None,
-                            page: int | None = Query(default=1, alias="page[number]", gt=0),
-                            size: int | None = Query(default=50, alias="page[size]", gt=0)) -> list[PersonApiSchema]:
+                            page: int | None = Query(default=1, alias='page[number]', gt=0),
+                            size: int | None = Query(default=50, alias='page[size]', gt=0)) -> list[PersonApiSchema]:
     """Поиск по персонам"""
     persons = await Person.manager.filter(query=query, page=page, size=size)
     if not persons:

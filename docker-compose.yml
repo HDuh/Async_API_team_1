@@ -8,42 +8,55 @@ volumes:
 services:
   etl:
     build:
-      context: etl_service/etl
+      context: ./etl_service
       dockerfile: Dockerfile
-    container_name: etl
+    container_name: ETL_team_1
     depends_on:
       - redis
       - elasticsearch
-    restart: always
+      - database
     env_file:
-      - .env.docker
+      - .env
+    restart: always
+
+
+  fastapi:
+    build:
+      context: ./api_service
+      dockerfile: Dockerfile
+    container_name: FASTAPI_team_1
+    depends_on:
+      - etl
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: always
+
 
   database:
     image: postgres:13.0-alpine
-    container_name: movies_database
+    container_name: DATABASE_team_1
     volumes:
       - $HOME/postgresql/data:/var/lib/postgresql/data/
-    env_file:
-      - .env.docker
     restart: always
 
   elasticsearch:
     image: elasticsearch:7.17.4
     environment:
       - discovery.type=single-node
-    container_name: elasticsearch
+    container_name: ELASTICSEARCH_team_1
+    volumes:
+      - elasticdata:/usr/src/elasticsearch/data
     ports:
       - '9200:9200'
     restart: always
-    volumes:
-      - elasticdata:/usr/share/elasticsearch/data
 
   redis:
     image: redis:6-alpine
-    container_name: state
+    container_name: REDISCACHE_team_1
     restart: always
     volumes:
       - redisdata:/data
     ports:
       - '6379:6379'
-

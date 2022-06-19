@@ -21,7 +21,7 @@ app = FastAPI(
 
 @app.on_event('startup')
 async def startup():
-    redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding="utf-8", decode_responses=True)
+    redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding='utf-8', decode_responses=True)
     FastAPICache.init(RedisBackend(redis.redis), prefix=f'{PROJECT_NAME}_cache')
 
 

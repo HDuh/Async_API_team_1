@@ -14,10 +14,10 @@ router = APIRouter()
 @router.get('', response_model=list[FilmApiShortSchema])
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def all_films(sort: str | None = None,
-                    page: int | None = Query(default=1, alias="page[number]", gt=0),
-                    size: int | None = Query(default=50, alias="page[size]", gt=0),
+                    page: int | None = Query(default=1, alias='page[number]', gt=0),
+                    size: int | None = Query(default=50, alias='page[size]', gt=0),
                     genre_id: UUID | None = Query(default=None,
-                                                  alias="filter[genre]")) -> list[FilmApiShortSchema]:
+                                                  alias='filter[genre]')) -> list[FilmApiShortSchema]:
     """Получение всех фильмов"""
     if not page:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='page is ')
@@ -31,8 +31,8 @@ async def all_films(sort: str | None = None,
 @router.get('/search', response_model=list[FilmApiShortSchema])
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def search_in_films(query: str | None = None,
-                          page: int | None = Query(default=1, alias="page[number]", gt=0),
-                          size: int | None = Query(default=50, alias="page[size]", gt=0)) -> list[FilmApiShortSchema]:
+                          page: int | None = Query(default=1, alias='page[number]', gt=0),
+                          size: int | None = Query(default=50, alias='page[size]', gt=0)) -> list[FilmApiShortSchema]:
     """Поиск по фильмам"""
     films = await Film.manager.filter(query=query, page=page, size=size)
     if not films:
