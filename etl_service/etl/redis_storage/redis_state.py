@@ -6,7 +6,7 @@ from redis import Redis
 from utils import logger_etl, REDIS_CONFIG
 
 __all__ = (
-    "RedisState",
+    'RedisState',
 )
 
 
@@ -31,7 +31,7 @@ class RedisState:
     def get_state(redis: Redis, key: str, default: str = datetime.min) -> str:
         """Получение значения по ключу"""
         if data := redis.get(key):
-            return data.decode("utf-8")
+            return data.decode('utf-8')
         return default
 
     def __call__(self, key, value=None):

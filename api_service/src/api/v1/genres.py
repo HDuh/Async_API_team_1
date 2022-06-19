@@ -13,8 +13,8 @@ router = APIRouter()
 
 @router.get('', response_model=list[Genre])
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
-async def all_genres(page: int | None = Query(default=1, alias="page[number]", gt=0),
-                     size: int | None = Query(default=50, alias="page[size]", gt=0)) -> list[Genre]:
+async def all_genres(page: int | None = Query(default=1, alias='page[number]', gt=0),
+                     size: int | None = Query(default=50, alias='page[size]', gt=0)) -> list[Genre]:
     """Получение всех жанров"""
     genres = await Genre.manager.filter(page=page, size=size)
     if not genres:

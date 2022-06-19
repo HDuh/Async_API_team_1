@@ -62,7 +62,7 @@ class ElasticController:
         transformed_data = (model(**row).dict() for row in data)
         return (
             {
-                "_index": index,
+                '_index': index,
                 '_id': item['id'],
                 **item
             } for item in transformed_data

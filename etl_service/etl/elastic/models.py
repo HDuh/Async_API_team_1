@@ -4,20 +4,30 @@ from uuid import UUID
 
 from pydantic import BaseModel, validator
 
-# TODO: это не миксины. Либо менять нейминг, либо убирать.
-class IdMixin(BaseModel):
+
+class GenresES(BaseModel):
     id: UUID
-
-
-class GenresES(IdMixin):
     name: str
 
 
-class Person(IdMixin):
+class PersonsES(BaseModel):
+    id: UUID
+    full_name: str
+    role: list[str]
+    film_ids: list[UUID]
+
+    @validator('film_ids', )
+    def null_list(cls, value):
+        return value if value else []
+
+
+class Person(BaseModel):
+    id: UUID
     full_name: str
 
 
-class MoviesES(IdMixin):
+class MoviesES(BaseModel):
+    id: UUID
     imdb_rating: float = None
     genre: list[GenresES] = None
     title: str
@@ -35,21 +45,12 @@ class MoviesES(IdMixin):
         return value if value else []
 
 
-class PersonsES(Person):
-    role: list[str]
-    film_ids: list[UUID]
-
-    @validator('film_ids', )
-    def null_list(cls, value):
-        return value if value else []
-
-
 class FilmTypes(str, Enum):
-    movie = "movie"
-    tv_show = "tv_show"
+    movie = 'movie'
+    tv_show = 'tv_show'
 
 
 class PersonsType(str, Enum):
-    actor = "actor"
-    director = "director"
-    writer = "writer"
+    actor = 'actor'
+    director = 'director'
+    writer = 'writer'
