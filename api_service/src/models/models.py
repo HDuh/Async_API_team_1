@@ -24,16 +24,18 @@ class ManagerMixIn:
     def manager(cls):
         return cls.Config.manager(cls)
 
+    class Config:
+        json_loads = orjson.loads
+        json_dumps = orjson_dumps
+        manager = ModelManager
+
 
 class Genre(BaseModel, ManagerMixIn):
     id: uuid.UUID = Field(..., )
     name: str = Field(..., )
 
-    class Config:
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
+    class Config(ManagerMixIn.Config):
         es_index = 'genres'
-        manager = ModelManager
 
 
 class Person(BaseModel, ManagerMixIn):
@@ -42,11 +44,8 @@ class Person(BaseModel, ManagerMixIn):
     role: list[str] = Field(default=[])
     film_ids: list[uuid.UUID] = Field(default=[])
 
-    class Config:
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
+    class Config(ManagerMixIn.Config):
         es_index = 'persons'
-        manager = ModelManager
         filter_map = {
             'query': lambda query_text: Q('multi_match', query=query_text,
                                           fields=['full_name^3', 'role']),
@@ -69,11 +68,8 @@ class Film(BaseModel, ManagerMixIn):
             return 0.0
         return rating
 
-    class Config:
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
+    class Config(ManagerMixIn.Config):
         es_index = 'movies'
-        manager = ModelManager
         filter_map = {
             'genre': lambda genre_id: Q('nested', path='genre', query=Q('match', genre__id=genre_id)),
             'person': lambda person_id: reduce(

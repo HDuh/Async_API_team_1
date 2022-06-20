@@ -2,14 +2,15 @@ import logging
 
 import aioredis
 import uvicorn
+from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
 from api.v1 import films, genres, persons
-from core import PROJECT_NAME, LOGGING, REDIS_CONFIG
-from db import redis
+from core import PROJECT_NAME, LOGGING, REDIS_CONFIG, ELASTIC_CONFIG
+from db import redis, elastic
 
 app = FastAPI(
     title=PROJECT_NAME,
@@ -23,11 +24,13 @@ app = FastAPI(
 async def startup():
     redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding='utf-8', decode_responses=True)
     FastAPICache.init(RedisBackend(redis.redis), prefix=f'{PROJECT_NAME}_cache')
+    elastic.es = AsyncElasticsearch(ELASTIC_CONFIG)
 
 
 @app.on_event('shutdown')
 async def shutdown():
     await redis.redis.close()
+    await elastic.es.close()
 
 
 app.include_router(films.router, prefix='/api_service/v1/films', tags=['films'])

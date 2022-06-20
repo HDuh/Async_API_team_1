@@ -5,6 +5,7 @@ volumes:
   redisdata:
   postgres_data:
 
+
 services:
   etl:
     build:
@@ -41,6 +42,7 @@ services:
       - $HOME/postgresql/data:/var/lib/postgresql/data/
     restart: always
 
+
   elasticsearch:
     image: elasticsearch:7.17.4
     environment:
@@ -51,6 +53,7 @@ services:
     ports:
       - '9200:9200'
     restart: always
+
 
   redis:
     image: redis:6-alpine

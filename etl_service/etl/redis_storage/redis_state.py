@@ -12,10 +12,9 @@ __all__ = (
 
 class RedisState:
     """State на основе хранилища Redis"""
-
     @contextmanager
     def _connection(self):
-        connection = Redis(**REDIS_CONFIG)
+        connection = Redis(**REDIS_CONFIG, decode_responses=True)
         try:
             yield connection
         finally:
@@ -24,14 +23,14 @@ class RedisState:
     @staticmethod
     def save_state(redis: Redis, key: str, value: str) -> None:
         """Создание пары ключ-значение в Redis"""
-        redis.set(key, value.encode())
+        redis.set(key, value)
         logger_etl.info(f'State update -  {key}: {value}')
 
     @staticmethod
     def get_state(redis: Redis, key: str, default: str = datetime.min) -> str:
         """Получение значения по ключу"""
         if data := redis.get(key):
-            return data.decode('utf-8')
+            return data
         return default
 
     def __call__(self, key, value=None):
