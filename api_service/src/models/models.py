@@ -6,6 +6,7 @@ from elasticsearch_dsl import Q
 from pydantic import BaseModel, Field, validator
 
 from .model_manager import ModelManager
+from etl_service.etl.elastic.indexes.index_genres import genres_schema
 
 __all__ = (
     'Film',
@@ -36,7 +37,8 @@ class Genre(BaseModel, ManagerMixIn):
 
     class Config(ManagerMixIn.Config):
         es_index = 'genres'
-
+        schema = genres_schema
+    # TODO: В моделях описать все атрибуты (индекс, структуру запроса)
 
 class Person(BaseModel, ManagerMixIn):
     id: uuid.UUID = Field(..., )

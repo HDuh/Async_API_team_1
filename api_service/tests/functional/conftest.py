@@ -9,6 +9,14 @@ from .testdata.models import HTTPResponse
 from .testdata.elastic_test_indexes.genre_tests_index import genres_schema
 from .testdata.models import GenreFactory
 from elasticsearch.helpers import async_bulk
+from fastapi.testclient import TestClient
+from src.main import app
+
+
+@pytest.fixture
+def fastapi_client():
+    client = TestClient(app)
+    yield client
 
 
 @pytest.fixture
@@ -26,23 +34,12 @@ async def es_client():
 
 
 @pytest.fixture
-async def create_index_genre(es_client):
-    await es_client.indices.create(index='test_genre', body=genres_schema)
-    yield
-    await es_client.indices.delete(index='test_genre')
-
-
-@pytest.fixture
-async def fill_genre_index(es_client):
-    genres = [GenreFactory.create(name=_) for _ in GENRES]
-    doc = (
-        {
-            '_index': 'test_genre',
-            '_id': item['id'],
-            **item
-        } for item in genres
-    )
-    await async_bulk(es_client, doc)
+def create_index(es_client):
+    async def inner(index, schema):
+        await es_client.indices.create(index=index, body=schema)
+        yield
+        await es_client.indices.delete(index=index)
+    return inner
 
 # @pytest.fixture
 # def make_get_request(session):
