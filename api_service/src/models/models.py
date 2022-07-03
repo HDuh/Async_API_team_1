@@ -40,6 +40,7 @@ class Genre(BaseModel, ManagerMixIn):
         schema = genres_schema
     # TODO: В моделях описать все атрибуты (индекс, структуру запроса)
 
+
 class Person(BaseModel, ManagerMixIn):
     id: uuid.UUID = Field(..., )
     full_name: str = Field(..., )

@@ -27,8 +27,8 @@ class ElasticBaseFactory(Factory):
         if args:
             raise ValueError('NEED VALUES!')
         instance = model_class(**kwargs)
-        if not instance.Config.es_index.endswith('test'):
-            instance.Config.es_index = f'{instance.Config.es_index}_test'
+        # if not instance.Config.es_index.endswith('test'):
+        #     instance.Config.es_index = f'{instance.Config.es_index}_test'
         return instance
 
 
@@ -39,3 +39,5 @@ class GenreFactory(ElasticBaseFactory):
     # TODO: можно модель заставить генерить уникальные значения из списка
     class Meta:
         model = models.Genre
+        if not model.Config.es_index.endswith('test'):
+            model.Config.es_index = f'{model.Config.es_index}_test'

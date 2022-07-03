@@ -45,5 +45,4 @@ class ModelManager:
     async def save(self, instance):
         """Сохранение данных в Elasticsearch"""
         async with self.es_client() as es:
-            # await es.delete(index='genres_test', id='751830fa-7677-4040-b0f6-8fbec79d76c3')
             await es.create(index=instance.Config.es_index, id=instance.id, body=instance.dict(), refresh=True)
