@@ -130,6 +130,7 @@ dmypy.json
 
 # Other
 .idea
-/.env.docker
+/docker.env
 /.env
-/.env.docker
+/docker.env
+/api_service/dump.rdb

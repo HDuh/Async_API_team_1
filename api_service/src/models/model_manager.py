@@ -13,13 +13,13 @@ class ModelManager:
     model: Any
 
     async def filter(self, es: AsyncElasticsearch, sort: str = None,
-                     page: int = 1, size: int = 50, **kwargs) -> list[BaseModel]:
+                     number: int = 1, size: int = 50, **kwargs) -> list[BaseModel]:
         """Выполнение запроса в Elasticsearch с использованием сортировки и параметров поиска"""
         res = await es.search(
             index=self.model.Config.es_index,
             body=QueriesManager.create_query(self.model, **kwargs),
             sort=QueriesManager.transform_sorting(sort),
-            from_=(page - 1) * size + 1,
+            from_=(number - 1) * size + 1,
             size=size,
         )
         return [self.model(**item['_source']) for item in res['hits']['hits']]
