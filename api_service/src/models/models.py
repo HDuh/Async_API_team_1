@@ -1,12 +1,12 @@
 import uuid
 from functools import reduce
 
-import orjson
 from elasticsearch_dsl import Q
-from pydantic import BaseModel, Field, validator
 
-from .model_manager import ModelManager
-from etl_service.etl.elastic.indexes.index_genres import genres_schema
+from core import ELASTIC_INDEX_SUFFIX
+from etl_service.etl.elastic.indexes import genres_schema, persons_schema, movies_schema
+from .model_meta import MetaModel
+from .models_mixins import ManagerMixIn, BaseModelMixin
 
 __all__ = (
     'Film',
@@ -15,64 +15,49 @@ __all__ = (
 )
 
 
-def orjson_dumps(v, *, default):
-    return orjson.dumps(v, default=default).decode()
+class Genre(ManagerMixIn, BaseModelMixin, metaclass=MetaModel):
+    def __init__(self, id: uuid.UUID, name: str):
+        self.id = id
+        self.name = name
 
-
-class ManagerMixIn:
-    @classmethod
-    @property
-    def manager(cls):
-        return cls.Config.manager(cls)
-
-    class Config:
-        json_loads = orjson.loads
-        json_dumps = orjson_dumps
-        manager = ModelManager
-
-
-class Genre(BaseModel, ManagerMixIn):
-    id: uuid.UUID = Field(..., )
-    name: str = Field(..., )
-
-    class Config(ManagerMixIn.Config):
-        es_index = 'genres'
+    class ModelConfig:
+        es_index = f'genres{ELASTIC_INDEX_SUFFIX}'
         schema = genres_schema
-    # TODO: В моделях описать все атрибуты (индекс, структуру запроса)
 
 
-class Person(BaseModel, ManagerMixIn):
-    id: uuid.UUID = Field(..., )
-    full_name: str = Field(..., )
-    role: list[str] = Field(default=[])
-    film_ids: list[uuid.UUID] = Field(default=[])
+class Person(ManagerMixIn, BaseModelMixin, metaclass=MetaModel):
+    def __init__(self, id: uuid.UUID, full_name: str, role: list[str] = None, film_ids: list[uuid.UUID] = None):
+        self.id = id
+        self.full_name = full_name
+        self.role = role if role else []
+        self.film_ids = film_ids if film_ids else []
 
-    class Config(ManagerMixIn.Config):
-        es_index = 'persons'
+    class ModelConfig:
+        es_index = f'persons{ELASTIC_INDEX_SUFFIX}'
+        schema = persons_schema
         filter_map = {
             'query': lambda query_text: Q('multi_match', query=query_text,
                                           fields=['full_name^3', 'role']),
         }
 
 
-class Film(BaseModel, ManagerMixIn):
-    id: uuid.UUID = Field(..., )
-    title: str | None = Field(..., )
-    imdb_rating: float | None = Field(..., )
-    description: str | None = Field(default=None)
-    genre: list[Genre] = Field(default=[])
-    actors: list[Person] = Field(default=[])
-    writers: list[Person] = Field(default=[])
-    directors: list[Person] = Field(default=[])
+class Film(ManagerMixIn, BaseModelMixin, metaclass=MetaModel):
+    def __init__(
+            self, id: uuid.UUID, title: str | None, description: str | None, imdb_rating: float | None = 0,
+            genre: list[Genre] = None, actors: list[Person] = None, writers: list[Person] = None,
+            directors: list[Person] = None):
+        self.id = id
+        self.title = title
+        self.imdb_rating = imdb_rating
+        self.description = description
+        self.genre = genre if genre else []
+        self.actors = actors if actors else []
+        self.writers = writers if writers else []
+        self.directors = directors if directors else []
 
-    @validator('imdb_rating')
-    def rating_validator(cls, rating: float | None) -> float:
-        if not rating:
-            return 0.0
-        return rating
-
-    class Config(ManagerMixIn.Config):
-        es_index = 'movies'
+    class ModelConfig:
+        es_index = f'movies{ELASTIC_INDEX_SUFFIX}'
+        schema = movies_schema
         filter_map = {
             'genre': lambda genre_id: Q('nested', path='genre', query=Q('match', genre__id=genre_id)),
             'person': lambda person_id: reduce(

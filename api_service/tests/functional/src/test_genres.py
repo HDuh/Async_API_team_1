@@ -1,26 +1,23 @@
+from http import HTTPStatus
+
 import pytest
-from httpx import AsyncClient
-from fastapi import FastAPI
-# from src.main import app
-from functional.testdata.models.genre_fake_model import GenreFactory
-from urllib.parse import urljoin
-
-SERVICE_URL = 'http://0.0.0.0:8000'
-
-app = FastAPI()
 
 
+@pytest.mark.anyio
 @pytest.mark.asyncio
-async def test_genre(create_index, make_get_request):
-    genres = GenreFactory.build_batch(1)
-    index, schema = genres[0].Config.es_index, genres[0].Config.schema
-    await create_index(index, schema)
-    for genre in genres:
-        await genre.manager.save(genre)
-    # async with AsyncClient(app=app, base_url=SERVICE_URL) as ac:
-    #     response = await ac.get(urljoin(SERVICE_URL, '/api_service/v1/genres'))
-    response = await make_get_request('/genres')
-    print(1)
-    # TODO: нужен фастапи клиент в виде фикстуры
-    # TODO: генерация нужного количества объектов create_batch
-    # возможно в моделях потребуется get or create
+async def test_all_genrs(create_list_genres, fastapi_client):
+    expected_structure = [genre.__dict__ for genre in create_list_genres]
+    response = await fastapi_client.get("/api_service/v1/genres/")
+
+    assert response.status_code == HTTPStatus.OK
+    assert len(create_list_genres) == len(response.json())
+    assert expected_structure == response.json()
+
+
+@pytest.mark.anyio
+@pytest.mark.asyncio
+async def test_genre_by_id(create_one_genre, fastapi_client):
+    response = await fastapi_client.get(f"/api_service/v1/genres/{create_one_genre.id}")
+
+    assert response.status_code == HTTPStatus.OK
+    assert create_one_genre.id == response.json().get('id')
