@@ -9,6 +9,7 @@ from httpx import AsyncClient
 
 from core import REDIS_CONFIG, PROJECT_NAME, ELASTIC_CONFIG
 from functional.utils import clean_index
+from models import Genre
 from src.main import app
 from .settings import SERVICE_URL
 from .testdata.factories import GenreFactory
@@ -47,12 +48,12 @@ async def fastapi_client():
     await client.aclose()
 
 
-# @pytest.fixture(scope='session', autouse=True)
-# async def drop_indexes(es_client):
-#     factories = (GenreFactory,)
-#     yield
-#     for factory in factories:
-#         await es_client.indices.delete(index=factory.Meta.model.ModelConfig.es_index)
+@pytest.fixture(scope='session', autouse=True)
+async def drop_indexes(es_client):
+    models = (Genre,)
+    yield
+    for model in models:
+        await es_client.indices.delete(index=model.ModelConfig.es_index)
 
 
 @pytest.fixture
