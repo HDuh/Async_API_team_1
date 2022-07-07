@@ -36,6 +36,7 @@ class ModelManager:
             return [self.model(**item['_source']) for item in res['hits']['hits']]
 
     async def get(self, idx: uuid.UUID) -> BaseModel | None:
+
         """Выполнение запроса в Elasticsearch по конкретному id"""
         async with self.es_client() as es:
             try:
