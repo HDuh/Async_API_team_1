@@ -14,8 +14,8 @@ from src.main import app
 from .settings import SERVICE_URL
 from .testdata.factories import GenreFactory
 
-
 # TODO: сделать глобальный teardown и в нем грохать индексы с test.
+from .testdata.factories.film_factory import FilmFactory
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -68,3 +68,10 @@ async def create_one_genre():
     genre = await GenreFactory.async_create()
     yield genre
     await clean_index(genre)
+
+
+@pytest.fixture
+async def create_list_films():
+    films = await FilmFactory.async_create_batch(3)
+    yield films
+    await clean_index(films)

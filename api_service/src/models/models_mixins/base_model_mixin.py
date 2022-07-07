@@ -4,6 +4,7 @@ __all__ = (
 
 
 class BaseModelMixin:
+    manager = None
 
     async def save(self) -> None:
         await self.manager.async_save(self)

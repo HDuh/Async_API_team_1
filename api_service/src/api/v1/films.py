@@ -13,11 +13,9 @@ router = APIRouter()
 
 
 @router.get('/', response_model=Any, summary='Get list of films')
-@cache(expire=CACHE_EXPIRE_IN_SECONDS)
-async def all_films(sort: str | None = None,
-                    pagination: Pagination = Depends(),
-                    genre_id: UUID | None = Query(default=None,
-                                                  alias='filter[genre]')) -> list[FilmApiShortSchema]:
+# @cache(expire=CACHE_EXPIRE_IN_SECONDS)
+async def all_films(sort: str | None = None, pagination: Pagination = Depends(),
+                    genre_id: UUID | None = Query(default=None, alias='filter[genre]')) -> list[FilmApiShortSchema]:
     """
     ## Get list of films with the information below:
     - _id_
@@ -32,16 +30,15 @@ async def all_films(sort: str | None = None,
         - abc: **"imdb_rating"**,
         - desc: **"-imdb_rating"**
     """
-    films = await Film.manager.filter(sort=sort, **pagination.dict(), genre=genre_id)
+    films = await Film.manager.filter(sort=sort, genre=genre_id, **pagination.dict())
     if not films:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
-    return [FilmApiShortSchema(**film.dict()) for film in films]
+    return [FilmApiShortSchema.build_from_model(film) for film in films]
 
 
 @router.get('/search', response_model=Any, summary='Search in films')
-@cache(expire=CACHE_EXPIRE_IN_SECONDS)
-async def search_in_films(query: str | None = None,
-                          pagination: Pagination = Depends()) -> list[FilmApiShortSchema]:
+# @cache(expire=CACHE_EXPIRE_IN_SECONDS)
+async def search_in_films(query: str | None = None, pagination: Pagination = Depends()) -> list[FilmApiShortSchema]:
     """
     ## Get list of films with the information below:
     - _id_
@@ -56,11 +53,11 @@ async def search_in_films(query: str | None = None,
     films = await Film.manager.filter(query=query, **pagination.dict())
     if not films:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
-    return [FilmApiShortSchema(**film.dict()) for film in films]
+    return [FilmApiShortSchema.build_from_model(film) for film in films]
 
 
 @router.get('/{film_id}', response_model=Any, summary='Detailed info about Film by ID')
-@cache(expire=CACHE_EXPIRE_IN_SECONDS)
+# @cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def detailed_film_info(film_id: UUID) -> FilmApiSchema:
     """
     ## Get detailed information about Film:
@@ -79,4 +76,4 @@ async def detailed_film_info(film_id: UUID) -> FilmApiSchema:
     film = await Film.manager.get(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
-    return FilmApiSchema(**film.dict())
+    return FilmApiSchema.build_from_model(film)
