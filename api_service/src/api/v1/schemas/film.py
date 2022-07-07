@@ -1,8 +1,9 @@
 import uuid
+from typing import Any
 
 from pydantic import BaseModel
 
-from models import Genre, Person
+from .schemas_mixins import BuildFromModelMixin
 
 __all__ = (
     'FilmApiSchema',
@@ -10,18 +11,18 @@ __all__ = (
 )
 
 
-class FilmApiSchema(BaseModel):
+class FilmApiSchema(BaseModel, BuildFromModelMixin):
     id: uuid.UUID
     title: str
     imdb_rating: float
     description: str = None
-    genre: list[Genre]
-    actors: list[Person]
-    writers: list[Person]
-    directors: list[Person]
+    genre: list[Any]
+    actors: list[Any]
+    writers: list[Any]
+    directors: list[Any]
 
 
-class FilmApiShortSchema(BaseModel):
+class FilmApiShortSchema(BaseModel, BuildFromModelMixin):
     id: uuid.UUID
     title: str
     imdb_rating: float
