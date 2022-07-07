@@ -2,7 +2,7 @@ import uuid
 from http import HTTPStatus
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 
 from fastapi_cache.decorator import cache
 
@@ -15,9 +15,7 @@ router = APIRouter()
 
 @router.get('/', response_model=Any, summary='Get list of films')
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
-async def all_genres(page: int | None = Query(default=1, alias='page[number]', gt=0),
-                     size: int | None = Query(default=50, alias='page[size]', gt=0)) -> list[GenreApiSchema]:
-
+async def all_genres(pagination: Pagination = Depends()) -> list[GenreApiSchema]:
     """
     ## Get list of genres with the information below:
     - _id_
@@ -28,7 +26,7 @@ async def all_genres(page: int | None = Query(default=1, alias='page[number]', g
     - **page_number** - page number,
     - **page_size** - number of items per page
     """
-    genres = await Genre.manager.filter(page=page, size=size)
+    genres = await Genre.manager.filter(**pagination.dict())
 
     if not genres:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genres not found')
@@ -36,7 +34,6 @@ async def all_genres(page: int | None = Query(default=1, alias='page[number]', g
 
 
 @router.get('/{genre_id}', response_model=Any, summary='Info about Genre by ID')
-
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def detailed_genre_info(genre_id: uuid.UUID) -> GenreApiSchema:
     """
