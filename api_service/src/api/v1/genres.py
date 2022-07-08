@@ -1,22 +1,21 @@
 import uuid
 from http import HTTPStatus
+from typing import Any
 
-from elasticsearch import AsyncElasticsearch
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
+
 from fastapi_cache.decorator import cache
 
 from core import CACHE_EXPIRE_IN_SECONDS
-from db.elastic import get_elastic
 from models import Genre
 from .schemas import GenreApiSchema, Pagination
 
 router = APIRouter()
 
 
-@router.get('', response_model=list[Genre], summary='Get list of films')
+@router.get('/', response_model=Any, summary='Get list of films')
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
-async def all_genres(elastic: AsyncElasticsearch = Depends(get_elastic),
-                     pagination: Pagination = Depends()) -> list[Genre]:
+async def all_genres(pagination: Pagination = Depends()) -> list[GenreApiSchema]:
     """
     ## Get list of genres with the information below:
     - _id_
@@ -27,16 +26,16 @@ async def all_genres(elastic: AsyncElasticsearch = Depends(get_elastic),
     - **page_number** - page number,
     - **page_size** - number of items per page
     """
-    genres = await Genre.manager.filter(elastic, **pagination.dict())
+    genres = await Genre.manager.filter(**pagination.dict())
+
     if not genres:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genres not found')
-    return [Genre(**genre.dict()) for genre in genres]
+    return [GenreApiSchema.build_from_model(genre) for genre in genres]
 
 
-@router.get('/{genre_id}', response_model=GenreApiSchema, summary='Info about Genre by ID')
+@router.get('/{genre_id}', response_model=Any, summary='Info about Genre by ID')
 @cache(expire=CACHE_EXPIRE_IN_SECONDS)
-async def detailed_genre_info(genre_id: uuid.UUID,
-                              elastic: AsyncElasticsearch = Depends(get_elastic)) -> GenreApiSchema:
+async def detailed_genre_info(genre_id: uuid.UUID) -> GenreApiSchema:
     """
     ## Get information about Genre by ID with the information below:
     - _id_
@@ -46,7 +45,7 @@ async def detailed_genre_info(genre_id: uuid.UUID,
     - **{genre_id}**
     """
 
-    genre = await Genre.manager.get(elastic, genre_id)
+    genre = await Genre.manager.get(genre_id)
     if not genre:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='genre not found')
-    return GenreApiSchema(**genre.dict())
+    return GenreApiSchema.build_from_model(genre)

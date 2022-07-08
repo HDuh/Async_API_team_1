@@ -14,6 +14,8 @@ __all__ = (
     'ELASTIC_CONFIG',
     'REDIS_CONFIG',
     'CACHE_EXPIRE_IN_SECONDS',
+    'ELASTIC_INDEX_SUFFIX',
+    'PYTEST_RUN',
 )
 
 load_dotenv()
@@ -53,3 +55,8 @@ class RedisSettings(BaseSettings):
 
 ELASTIC_CONFIG = ElasticSettings().ger_settings()
 REDIS_CONFIG = RedisSettings().get_settings()
+
+# Суффикс для индекса. Дополняет имя основного индекса для создания тестового
+ELASTIC_INDEX_SUFFIX = ''
+if PYTEST_RUN := os.getenv('PYTEST_RUN_CONFIG', False):
+    ELASTIC_INDEX_SUFFIX = '_test'
