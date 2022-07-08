@@ -25,7 +25,7 @@ async def test_all_films(create_list_films, fastapi_client):
 
 @pytest.mark.anyio
 @pytest.mark.asyncio
-async def test_genre_by_id(create_one_film, fastapi_client):
+async def test_film_by_id(create_one_film, fastapi_client):
     """Тест на получение фильма по id"""
     film = create_one_film
     expected_structure = uuid_to_str(FilmApiSchema.build_from_model(film))
