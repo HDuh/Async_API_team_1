@@ -1,4 +1,5 @@
 import asyncio
+from random import randint
 
 import aioredis
 import pytest
@@ -9,12 +10,10 @@ from httpx import AsyncClient
 
 from core import REDIS_CONFIG, PROJECT_NAME, ELASTIC_CONFIG
 from functional.utils import clean_index
-from models import Genre
+from models import Genre, Film
 from src.main import app
 from .settings import SERVICE_URL
 from .testdata.factories import GenreFactory
-
-# TODO: сделать глобальный teardown и в нем грохать индексы с test.
 from .testdata.factories.film_factory import FilmFactory
 
 
@@ -50,7 +49,7 @@ async def fastapi_client():
 
 @pytest.fixture(scope='session', autouse=True)
 async def drop_indexes(es_client):
-    models = (Genre,)
+    models = (Genre, Film)
     yield
     for model in models:
         await es_client.indices.delete(index=model.ModelConfig.es_index)
@@ -58,7 +57,7 @@ async def drop_indexes(es_client):
 
 @pytest.fixture
 async def create_list_genres():
-    genres = await GenreFactory.async_create_batch(2)
+    genres = await GenreFactory.async_create_batch(randint(1, 10))
     yield genres
     await clean_index(genres)
 
@@ -72,6 +71,13 @@ async def create_one_genre():
 
 @pytest.fixture
 async def create_list_films():
-    films = await FilmFactory.async_create_batch(3)
+    films = await FilmFactory.async_create_batch(randint(1, 10))
     yield films
     await clean_index(films)
+
+
+@pytest.fixture
+async def create_one_film():
+    film = await FilmFactory.async_create()
+    yield film
+    await clean_index(film)
