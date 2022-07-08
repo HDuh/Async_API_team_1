@@ -1,7 +1,6 @@
 from typing import Any
 
 from elasticsearch_dsl import Q
-from pydantic import BaseModel
 
 
 class QueriesManager:
