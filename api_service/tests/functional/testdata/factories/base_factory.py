@@ -30,3 +30,13 @@ class ElasticBaseFactory(Factory):
         """Получение или создание экземпляра класса модели"""
         instance = cls.build(**kwargs)
         return await instance.get_or_create()
+
+    @classmethod
+    async def async_build(cls, **kwargs):
+        instance = cls.build(**kwargs)
+        return instance
+
+    @classmethod
+    async def async_build_batch(cls, size, **kwargs):
+        instance = cls.build_batch(size, **kwargs)
+        return instance
