@@ -11,8 +11,8 @@ class MetaModel(type):
     """
 
     def __new__(cls, name, bases, dct):
-        x = super().__new__(cls, name, bases, dct)
-        x.manager = x.ManagerConfig.manager(x)
+        model_class = super().__new__(cls, name, bases, dct)
+        model_class.manager = model_class.ManagerConfig.manager(model_class)
         loop = asyncio.new_event_loop()
-        loop.run_until_complete(x.manager.async_check_or_create_index())
-        return x
+        loop.run_until_complete(model_class.manager.async_check_or_create_index())
+        return model_class
