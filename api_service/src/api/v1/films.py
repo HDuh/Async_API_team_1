@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.get('/', response_model=Any, summary='Get list of films')
-# @cache(expire=CACHE_EXPIRE_IN_SECONDS)
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def all_films(sort: str | None = None, pagination: Pagination = Depends(),
                     genre_id: UUID | None = Query(default=None, alias='filter[genre]')) -> list[FilmApiShortSchema]:
     """
@@ -37,7 +37,7 @@ async def all_films(sort: str | None = None, pagination: Pagination = Depends(),
 
 
 @router.get('/search', response_model=Any, summary='Search in films')
-# @cache(expire=CACHE_EXPIRE_IN_SECONDS)
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def search_in_films(query: str | None = None, pagination: Pagination = Depends()) -> list[FilmApiShortSchema]:
     """
     ## Get list of films with the information below:
@@ -57,7 +57,7 @@ async def search_in_films(query: str | None = None, pagination: Pagination = Dep
 
 
 @router.get('/{film_id}', response_model=Any, summary='Detailed info about Film by ID')
-# @cache(expire=CACHE_EXPIRE_IN_SECONDS)
+@cache(expire=CACHE_EXPIRE_IN_SECONDS)
 async def detailed_film_info(film_id: UUID) -> FilmApiSchema:
     """
     ## Get detailed information about Film:

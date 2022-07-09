@@ -33,10 +33,12 @@ class ElasticBaseFactory(Factory):
 
     @classmethod
     async def async_build(cls, **kwargs):
+        """Построение экземпляра класса модели"""
         instance = cls.build(**kwargs)
         return instance
 
     @classmethod
     async def async_build_batch(cls, size, **kwargs):
+        """Построение определенного количества экземпляров класса модели"""
         instance = cls.build_batch(size, **kwargs)
         return instance
