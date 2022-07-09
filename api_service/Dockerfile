@@ -1,4 +1,4 @@
-FROM python:3.10-buster as builder
+FROM python:3.10-buster
 
 WORKDIR /api_service
 
@@ -6,11 +6,12 @@ WORKDIR /api_service
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+
 COPY ./requirements.txt .
 
 RUN pip install --upgrade pip --no-cache-dir \
     && pip install -r requirements.txt --no-cache-dir
 
-COPY . .
+COPY ./src .
 
-CMD python ./src/main.py
+CMD ["gunicorn", "main:app", "-w", "9", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]

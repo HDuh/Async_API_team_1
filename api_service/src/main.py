@@ -38,6 +38,7 @@ app.include_router(genres.router, prefix='/api_service/v1/genres', tags=['genres
 app.include_router(persons.router, prefix='/api_service/v1/persons', tags=['persons'])
 
 if __name__ == '__main__':
+    # only for develop (production use nginx + gunicorn server)
     uvicorn.run(
         'main:app',
         host='0.0.0.0',

@@ -1,4 +1,4 @@
-FROM python:3.10-buster as builder
+FROM python:3.10-buster
 
 WORKDIR /etl_service
 

@@ -1,14 +1,15 @@
-# Проектная работа 4 спринта
+# Проектная работа 4-5 спринтов
 
-## В репозитории 2 сервиса 
+## В репозитории 3 сервиса 
 - api_service для Fast api
 - etl_service для запуска ETL pipeline
+- nginx для проксирования запросов
 # Инструкция по использованию
 
 ---
 ## Запуск и функционал
 ### Запуск:
-1. Создаем файл `.env` на примере `.env.example`
+1. Создаем файл `docker.env` на примере `.env.example`
 2. Выполняем сборку и запуск проекта:
 ```shell
 $ make run
@@ -16,12 +17,13 @@ $ make run
 Запускаются: 
 - база Postgres
 - база Elasticsearch
-- база Redis
+- база Redi
 - ETL сервис
-- Fast API service
+- fast API service
+- сервер nginx
 
 **Для тестирования сервиса и просмотра документации в swagger, перейдите по ссылке: 
-http://0.0.0.0:8000/api_service/openapi#**  
+http://0.0.0.0/api_service/openapi#**  
 
 ### Makefile функции: 
 
@@ -33,7 +35,6 @@ $ make build
 ```shell
 $ make drop-state
 ```
-
  - запуск проекта:
 ```shell
 $ make up
@@ -54,7 +55,6 @@ $ make stop
 ```shell
 $ make start
 ```
-
 - просмотр логов
 ```shell
 $ make logs
