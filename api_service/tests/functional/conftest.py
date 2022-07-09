@@ -9,11 +9,11 @@ from fastapi_cache.backends.redis import RedisBackend
 from httpx import AsyncClient
 
 from core import REDIS_CONFIG, PROJECT_NAME, ELASTIC_CONFIG
-from functional.utils import clean_index
-from models import Genre, Film
+from functional.utils import clean_index, RoleTypes
+from models import Genre, Film, Person
 from src.main import app
 from .settings import SERVICE_URL
-from .testdata.factories import GenreFactory, FilmFactory
+from .testdata.factories import GenreFactory, FilmFactory, PersonFactory
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -48,7 +48,7 @@ async def fastapi_client():
 
 @pytest.fixture(scope='session', autouse=True)
 async def drop_indexes(es_client):
-    models = (Genre, Film)
+    models = (Genre, Film, Person,)
     yield
     for model in models:
         await es_client.indices.delete(index=model.ModelConfig.es_index)
@@ -76,14 +76,28 @@ async def create_list_films():
 
 
 @pytest.fixture
-async def create_one_film(create_list_genres):
+async def create_one_film(create_list_genres, create_list_persons):
     """Фикстура для создания фильма. Для фильма создаются жанры и персоны.
     Передаются в фабрику фильмов для создания фильма"""
     genres = [genre.__dict__ for genre in create_list_genres]
-    actors = []
-    writers = []
-    directors = []
-    film = await FilmFactory.async_create(genre=genres)
+    actors = [person.get_short() for person in create_list_persons if person.role == RoleTypes.ACTOR]
+    writers = [person.get_short() for person in create_list_persons if person.role == RoleTypes.WRITER]
+    directors = [person.get_short() for person in create_list_persons if person.role == RoleTypes.DIRECTOR]
+    film = await FilmFactory.async_create(genre=genres, actors=actors, writers=writers, directors=directors)
 
     yield film
     await clean_index(film)
+
+
+@pytest.fixture
+async def create_one_person():
+    person = await PersonFactory.async_create()
+    yield person
+    await clean_index(person)
+
+
+@pytest.fixture
+async def create_list_persons():
+    persons = await PersonFactory.async_create_batch(randint(3, 10))
+    yield persons
+    await clean_index(persons)
