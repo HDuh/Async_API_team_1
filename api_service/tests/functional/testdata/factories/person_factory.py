@@ -13,8 +13,8 @@ __all__ = (
 class PersonFactory(ElasticBaseFactory):
     id = factory.Faker('uuid4')
     full_name = factory.Faker('name')
-    role = fuzzy.FuzzyChoice((role.value for role in RoleTypes))
-    film_ids = factory.Faker('uuid4')
+    role = factory.List([fuzzy.FuzzyChoice((role.value for role in RoleTypes))])
+    film_ids = factory.ListFactory()
 
     class Meta:
         model = models.Person
