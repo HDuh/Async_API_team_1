@@ -80,9 +80,9 @@ async def create_one_film(create_list_genres, create_list_persons):
     """Фикстура для создания фильма. Для фильма создаются жанры и персоны.
     Передаются в фабрику фильмов для создания фильма"""
     genres = [genre.__dict__ for genre in create_list_genres]
-    actors = [person.get_short() for person in create_list_persons if person.role == RoleTypes.ACTOR]
-    writers = [person.get_short() for person in create_list_persons if person.role == RoleTypes.WRITER]
-    directors = [person.get_short() for person in create_list_persons if person.role == RoleTypes.DIRECTOR]
+    actors = [person.get_short() for person in create_list_persons if RoleTypes.ACTOR.value in person.role]
+    writers = [person.get_short() for person in create_list_persons if RoleTypes.WRITER.value in person.role]
+    directors = [person.get_short() for person in create_list_persons if RoleTypes.DIRECTOR.value in person.role]
     film = await FilmFactory.async_create(genre=genres, actors=actors, writers=writers, directors=directors)
 
     yield film
@@ -90,8 +90,10 @@ async def create_one_film(create_list_genres, create_list_persons):
 
 
 @pytest.fixture
-async def create_one_person():
-    person = await PersonFactory.async_create()
+async def create_one_person(create_list_films):
+    films = create_list_films
+    film_ids = [film.id for film in films]
+    person = await PersonFactory.async_create(film_ids=film_ids)
     yield person
     await clean_index(person)
 
