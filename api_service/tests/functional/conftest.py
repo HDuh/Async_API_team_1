@@ -13,8 +13,7 @@ from functional.utils import clean_index
 from models import Genre, Film
 from src.main import app
 from .settings import SERVICE_URL
-from .testdata.factories import GenreFactory
-from .testdata.factories.film_factory import FilmFactory
+from .testdata.factories import GenreFactory, FilmFactory
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -77,7 +76,14 @@ async def create_list_films():
 
 
 @pytest.fixture
-async def create_one_film():
-    film = await FilmFactory.async_create()
+async def create_one_film(create_list_genres):
+    """Фикстура для создания фильма. Для фильма создаются жанры и персоны.
+    Передаются в фабрику фильмов для создания фильма"""
+    genres = [genre.__dict__ for genre in create_list_genres]
+    actors = []
+    writers = []
+    directors = []
+    film = await FilmFactory.async_create(genre=genres)
+
     yield film
     await clean_index(film)
