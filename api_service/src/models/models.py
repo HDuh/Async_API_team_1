@@ -32,6 +32,12 @@ class Person(ManagerMixIn, BaseModelMixin, metaclass=MetaModel):
         self.role = role if role else []
         self.film_ids = film_ids if film_ids else []
 
+    def get_short(self) -> dict:
+        return {
+            'id': self.id,
+            'full_name': self.full_name,
+        }
+
     class ModelConfig:
         es_index = f'persons{ELASTIC_INDEX_SUFFIX}'
         schema = persons_schema
