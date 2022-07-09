@@ -1,5 +1,6 @@
 import factory
 from factory import fuzzy
+
 from functional.utils import RoleTypes
 from src.models import models
 from .base_factory import ElasticBaseFactory
