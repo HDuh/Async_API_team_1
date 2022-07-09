@@ -18,6 +18,7 @@ from .testdata.factories import GenreFactory, FilmFactory, PersonFactory
 
 @pytest.fixture(scope='session', autouse=True)
 async def es_client():
+    """Фикстура создания коннекта Elasticsearch"""
     client = AsyncElasticsearch(ELASTIC_CONFIG)
     yield client
     await client.close()
@@ -33,6 +34,7 @@ def event_loop():
 
 @pytest.fixture(scope='session', autouse=True)
 async def redis():
+    """Фикстура создания коннекта redis"""
     redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding='utf-8', decode_responses=True)
     FastAPICache.init(RedisBackend(redis.redis), prefix=f'test_{PROJECT_NAME}_cache')
     yield redis.redis
@@ -41,6 +43,7 @@ async def redis():
 
 @pytest.fixture(scope='session')
 async def fastapi_client():
+    """Фикстура создания коннекта fastapi"""
     client = AsyncClient(app=app, base_url=SERVICE_URL)
     yield client
     await client.aclose()
@@ -48,6 +51,7 @@ async def fastapi_client():
 
 @pytest.fixture(scope='session', autouse=True)
 async def drop_indexes(es_client):
+    """Фикстура удаления индексов из Elasticsearch после завершения тестирования"""
     models = (Genre, Film, Person,)
     yield
     for model in models:
@@ -56,6 +60,7 @@ async def drop_indexes(es_client):
 
 @pytest.fixture
 async def create_list_genres():
+    """Фикстура создания списка жанров"""
     genres = await GenreFactory.async_create_batch(randint(1, 10))
     yield genres
     await clean_index(genres)
@@ -63,6 +68,7 @@ async def create_list_genres():
 
 @pytest.fixture
 async def create_one_genre():
+    """Фикстура создания одного жанра"""
     genre = await GenreFactory.async_create()
     yield genre
     await clean_index(genre)
@@ -70,6 +76,7 @@ async def create_one_genre():
 
 @pytest.fixture
 async def create_list_films():
+    """Фикстура создания списка фильмов"""
     films = await FilmFactory.async_create_batch(randint(1, 10))
     yield films
     await clean_index(films)
@@ -91,6 +98,7 @@ async def create_one_film(create_list_genres, create_list_persons):
 
 @pytest.fixture
 async def create_one_person(create_list_films):
+    """Фикстура создания одной персоны с привязанными к ней фильмами"""
     films = create_list_films
     film_ids = [film.id for film in films]
     person = await PersonFactory.async_create(film_ids=film_ids)
@@ -100,6 +108,7 @@ async def create_one_person(create_list_films):
 
 @pytest.fixture
 async def create_list_persons():
+    """Фикстура создания списка персон"""
     persons = await PersonFactory.async_create_batch(randint(3, 10))
     yield persons
     await clean_index(persons)
