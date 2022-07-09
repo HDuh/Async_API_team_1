@@ -32,6 +32,12 @@ class Person(ManagerMixIn, BaseModelMixin, metaclass=MetaModel):
         self.role = role if role else []
         self.film_ids = film_ids if film_ids else []
 
+    def get_short(self) -> dict:
+        return {
+            'id': self.id,
+            'full_name': self.full_name,
+        }
+
     class ModelConfig:
         es_index = f'persons{ELASTIC_INDEX_SUFFIX}'
         schema = persons_schema
@@ -42,10 +48,9 @@ class Person(ManagerMixIn, BaseModelMixin, metaclass=MetaModel):
 
 
 class Film(ManagerMixIn, BaseModelMixin, metaclass=MetaModel):
-    def __init__(
-            self, id: uuid.UUID, title: str | None, description: str | None, imdb_rating: float | None = 0,
-            genre: list[Genre] = None, actors: list[Person] = None, writers: list[Person] = None,
-            directors: list[Person] = None):
+    def __init__(self, id: uuid.UUID, title: str | None, description: str | None, imdb_rating: float | None = 0,
+                 genre: list[Genre] = None, actors: list[Person] = None, writers: list[Person] = None,
+                 directors: list[Person] = None):
         self.id = id
         self.title = title
         self.imdb_rating = imdb_rating

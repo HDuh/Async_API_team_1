@@ -17,10 +17,10 @@ class FilmFactory(ElasticBaseFactory):
     title = factory.Faker('company')
     imdb_rating = fuzzy.FuzzyFloat(low=0, high=10.0, precision=1)
     description = factory.Faker('paragraph')
-    genre = []
-    actors = []
-    writers = []
-    directors = []
+    genre = factory.ListFactory()
+    actors = factory.ListFactory()
+    writers = factory.ListFactory()
+    directors = factory.ListFactory()
 
     class Meta:
         model = models.Film
