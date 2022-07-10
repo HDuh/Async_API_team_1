@@ -4,7 +4,7 @@ from functools import reduce
 from elasticsearch_dsl import Q
 
 from core import ELASTIC_INDEX_SUFFIX
-from etl_service.etl.elastic.indexes import genres_schema, persons_schema, movies_schema
+from core.indexes import genres_schema, persons_schema, movies_schema
 from .model_meta import MetaModel
 from .models_mixins import ManagerMixIn, BaseModelMixin
 
