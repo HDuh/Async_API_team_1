@@ -1,6 +1,6 @@
 FROM python:3.10
 
-WORKDIR /api_service
+WORKDIR /test_service
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -11,6 +11,6 @@ COPY ./requirements.txt .
 RUN pip install --upgrade pip --no-cache-dir \
     && pip install -r requirements.txt --no-cache-dir
 
-COPY . .
+COPY . /test_service
 
-ENTRYPOINT python ./src/waiters.py && python ./src/main.py
+ENTRYPOINT python utils/waiters.py && pytest --disable-pytest-warnings src

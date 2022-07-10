@@ -30,7 +30,7 @@ class ElasticSettings(BaseSettings):
     host: str = Field(..., env='ELASTICSEARCH_HOST')
     port: int = Field(..., env='ELASTICSEARCH_PORT')
 
-    def ger_settings(self):
+    def get_settings(self):
         return [f'http://{self.host}:{self.port}']
 
 
@@ -55,7 +55,7 @@ class BackoffSettings(BaseSettings):
 
 # все конфиги в константах
 POSTGRES_DSL = PostgresSettings().dict()
-ELASTIC_DSL = ElasticSettings().ger_settings()
+ELASTIC_DSL = ElasticSettings().get_settings()
 APP_CONFIG = AppSettings()
 REDIS_CONFIG = RedisSettings().dict()
 BACKOFF_CONFIG = BackoffSettings().dict()

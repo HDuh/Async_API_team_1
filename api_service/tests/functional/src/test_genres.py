@@ -8,7 +8,7 @@ from functional.utils import uuid_to_str
 
 @pytest.mark.anyio
 @pytest.mark.asyncio
-async def test_all_genrs(create_list_genres, fastapi_client):
+async def test_all_genres(create_list_genres, fastapi_client):
     genres = create_list_genres
     expected_structure = [
         uuid_to_str(GenreApiSchema.build_from_model(genre)).dict()

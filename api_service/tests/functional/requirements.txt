@@ -1,13 +1,14 @@
 aioredis==2.0.1
 elasticsearch[async]==7.14
-backoff==2.0.1
 fastapi==0.78.0
 orjson==3.7.2
-backoff==2.0.1
 pydantic==1.9.1
 uvicorn==0.17.6
 uvloop==0.16.0
 elasticsearch_dsl==7.4.0
 fastapi-cache2==0.1.8
 python-dotenv==0.20.0
-redis<=4.3.3
+aiohttp==3.7.2
+pytest==7.1.2
+factory-boy==3.2.1
+httpx==0.23.0

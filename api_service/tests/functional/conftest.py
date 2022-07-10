@@ -58,6 +58,13 @@ async def drop_indexes(es_client):
         await es_client.indices.delete(index=model.ModelConfig.es_index)
 
 
+@pytest.fixture(scope='session', autouse=True)
+async def drop_cache(redis):
+    """Фикстура очистки кеша после завершения тестирования"""
+    yield redis
+    await redis.flushall()
+
+
 @pytest.fixture
 async def create_list_genres():
     """Фикстура создания списка жанров"""
