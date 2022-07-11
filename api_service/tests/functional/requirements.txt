@@ -12,3 +12,5 @@ aiohttp==3.7.2
 pytest==7.1.2
 factory-boy==3.2.1
 httpx==0.23.0
+backoff==2.0.1
+redis<=4.3.3
