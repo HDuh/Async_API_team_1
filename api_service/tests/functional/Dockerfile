@@ -1,17 +1,17 @@
-FROM python:3.10
+FROM python:3.10-buster
+
 
 WORKDIR /api_service
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PYTEST_RUN_CONFIG True
 
-COPY ./api_service/tests/functional/requirements.txt .
+COPY ./tests/functional/requirements.txt ./tests/functional/
 
-RUN pip install --upgrade pip --no-cache-dir \
-    && pip install -r requirements.txt --no-cache-dir
+RUN pip install --upgrade pip --no-cache-dir\
+    && pip install -r ./tests/functional/requirements.txt
 
-COPY . /api_service
-
-#ENTRYPOINT python src/waiters.py && pytest --disable-pytest-warnings tests
-ENTRYPOINT python ./src/waiters.py && pytest --disable-pytest-warnings tests
+COPY ../../ .
+CMD python ./src/waiters.py && python -m pytest -c ./tests/functional/pytest.ini

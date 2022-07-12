@@ -1,61 +1,36 @@
 version: "3.8"
 
-services:
-#  fastapi:
-#    container_name: FASTAPI_team_1
-#    restart: always
-#    build:
-#      context: ../../.
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8000:8000"
-#    env_file:
-#      - ../../../docker.env
-#    networks:
-#      - testnetwork
-#    depends_on:
-#      - elasticsearch
-#      - redis
+volumes:
+  elasticdata:
+  redisdata:
 
+services:
   redis:
-    container_name: REDISCACHE_team_1
     image: redis:6-alpine
+    container_name: REDISCACHE_team_1
     restart: always
     ports:
       - "6379:6379"
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - ../../redisdata:/data
-    networks:
-      - testnetwork
+      - redisdata:/data
 
   elasticsearch:
-    container_name: ELASTICSEARCH_team_1
     image: elasticsearch:7.17.4
-    restart: always
+    container_name: ELASTICSEARCH_team_1
     volumes:
-      - ../../elasticdata:/usr/src/elasticsearch/data
+      - elasticdata:/usr/src/elasticsearch/data
     ports:
       - "9200:9200"
     environment:
       - discovery.type=single-node
-    networks:
-      - testnetwork
 
   tests:
     container_name: TESTS_team_1
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: ./tests/functional/Dockerfile
     env_file:
-      - ../../../docker.env
-    networks:
-      - testnetwork
+      - ../../../.env
     depends_on:
-      - fastapi
       - elasticsearch
       - redis
-networks:
-  testnetwork:
-    driver: bridge
