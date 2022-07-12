@@ -2,8 +2,8 @@ from http import HTTPStatus
 
 import pytest
 
-from api.v1.schemas import GenreApiSchema
-from functional.utils import uuid_to_str
+from src.api.v1.schemas import GenreApiSchema
+from tests.functional.utils import uuid_to_str
 
 
 @pytest.mark.anyio
@@ -11,7 +11,7 @@ from functional.utils import uuid_to_str
 async def test_all_genres(create_list_genres, fastapi_client):
     genres = create_list_genres
     expected_structure = [
-        uuid_to_str(GenreApiSchema.build_from_model(genre)).dict()
+        uuid_to_str(GenreApiSchema.build_from_model(genre)).__dict__
         for genre in genres
     ]
     response = await fastapi_client.get("/api_service/v1/genres/")

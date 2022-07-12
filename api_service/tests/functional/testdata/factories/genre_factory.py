@@ -1,8 +1,8 @@
 import factory
 from factory import fuzzy
 
-from functional.settings import GENRES
 from src.models import models
+from tests.functional.settings import GENRES
 from .base_factory import ElasticBaseFactory
 
 __all__ = (

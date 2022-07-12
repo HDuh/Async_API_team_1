@@ -5,8 +5,8 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi_cache.decorator import cache
 
-from core import CACHE_EXPIRE_IN_SECONDS
-from models import Film
+from src.core import CACHE_EXPIRE_IN_SECONDS
+from src.models import Film
 from .schemas import FilmApiShortSchema, FilmApiSchema, Pagination
 
 router = APIRouter()

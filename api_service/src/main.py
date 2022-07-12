@@ -7,9 +7,9 @@ from fastapi.responses import ORJSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
-from api.v1 import films, genres, persons
-from core import PROJECT_NAME, LOGGING, REDIS_CONFIG
-from db import redis
+from src.api.v1 import films, genres, persons
+from src.core import PROJECT_NAME, LOGGING, REDIS_CONFIG
+from src.db import redis
 
 app = FastAPI(
     title=PROJECT_NAME,

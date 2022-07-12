@@ -6,7 +6,7 @@ from typing import Any
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from pydantic import BaseModel
 
-from core import ELASTIC_CONFIG
+from src.core import ELASTIC_CONFIG
 from .query_manager import QueriesManager
 
 
@@ -14,8 +14,6 @@ from .query_manager import QueriesManager
 class ModelManager:
     model: Any
 
-    # TODO: выпилить из мейн es client. Коннект до эластика будет создаваться тут.
-    #  Ревьювер может докопаться что при каждом запросе открывается подключение
     @asynccontextmanager
     async def es_client(self):
         """Создание подключения к AsyncElasticsearch"""
@@ -53,7 +51,7 @@ class ModelManager:
     async def async_delete(self, instance):
         """Удаление экземпляра модели из Elasticsearch"""
         async with self.es_client() as es:
-            await es.delete(index=instance.ModelConfig.es_index, id=instance.id)
+            await es.delete(index=instance.ModelConfig.es_index, id=instance.id, refresh=True)
 
     async def async_check_or_create_index(self):
         """Проверка или создание индекса в Elasticsearch"""

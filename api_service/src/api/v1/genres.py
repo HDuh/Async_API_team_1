@@ -6,8 +6,8 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 
 from fastapi_cache.decorator import cache
 
-from core import CACHE_EXPIRE_IN_SECONDS
-from models import Genre
+from src.core import CACHE_EXPIRE_IN_SECONDS
+from src.models import Genre
 from .schemas import GenreApiSchema, Pagination
 
 router = APIRouter()

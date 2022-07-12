@@ -1,6 +1,6 @@
 import orjson
 
-from models.model_manager import ModelManager
+from src.models.model_manager import ModelManager
 
 __all__ = (
     'ManagerMixIn',

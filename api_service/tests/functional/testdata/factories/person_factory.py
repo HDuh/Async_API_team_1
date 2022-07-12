@@ -1,8 +1,8 @@
 import factory
 from factory import fuzzy
 
-from functional.utils import RoleTypes
 from src.models import models
+from tests.functional.utils import RoleTypes
 from .base_factory import ElasticBaseFactory
 
 __all__ = (

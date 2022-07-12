@@ -5,8 +5,8 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi_cache.decorator import cache
 
-from core import CACHE_EXPIRE_IN_SECONDS
-from models import Person, Film
+from src.core import CACHE_EXPIRE_IN_SECONDS
+from src.models import Person, Film
 from .schemas import PersonApiSchema, PersonFilmApiSchema, Pagination
 
 router = APIRouter()
