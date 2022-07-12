@@ -28,12 +28,23 @@ services:
     container_name: FASTAPI_team_1
     depends_on:
       - etl
+      - tests
     env_file:
       - .env
     ports:
       - "8000:8000"
     restart: always
 
+  tests:
+    container_name: TESTS_team_1
+    build:
+      context: api_service/tests/functional
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - elasticsearch
+      - redis
 
   database:
     image: postgres:13.0-alpine
@@ -41,7 +52,6 @@ services:
     volumes:
       - $HOME/postgresql/data:/var/lib/postgresql/data/
     restart: always
-
 
   elasticsearch:
     image: elasticsearch:7.17.4
@@ -53,7 +63,6 @@ services:
     ports:
       - '9200:9200'
     restart: always
-
 
   redis:
     image: redis:6-alpine

@@ -11,7 +11,7 @@ COPY ./api_service/tests/functional/requirements.txt .
 RUN pip install --upgrade pip --no-cache-dir \
     && pip install -r requirements.txt --no-cache-dir
 
-COPY ./api_service /api_service
+COPY . /api_service
 
 #ENTRYPOINT python src/waiters.py && pytest --disable-pytest-warnings tests
 ENTRYPOINT python ./src/waiters.py && pytest --disable-pytest-warnings tests
