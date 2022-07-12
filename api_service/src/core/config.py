@@ -1,8 +1,7 @@
-import logging
 import os
 import warnings
-from typing import Callable
 from logging import config as logging_config
+from typing import Callable
 
 import backoff
 from dotenv import load_dotenv
@@ -18,7 +17,6 @@ __all__ = (
     'REDIS_CONFIG',
     'CACHE_EXPIRE_IN_SECONDS',
     'ELASTIC_INDEX_SUFFIX',
-    'PYTEST_RUN',
     'BACKOFF_CONFIG',
 )
 
