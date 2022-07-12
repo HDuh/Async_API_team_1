@@ -3,20 +3,21 @@ from random import randint
 
 import aioredis
 import pytest
+import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from httpx import AsyncClient
 
-from core import REDIS_CONFIG, PROJECT_NAME, ELASTIC_CONFIG
-from functional.utils import clean_index, RoleTypes
-from models import Genre, Film, Person
+from src.core import REDIS_CONFIG, PROJECT_NAME, ELASTIC_CONFIG
 from src.main import app
+from src.models import Genre, Film, Person
+from tests.functional.utils import clean_index, RoleTypes
 from .settings import SERVICE_URL
 from .testdata.factories import GenreFactory, FilmFactory, PersonFactory
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest_asyncio.fixture(scope='session', autouse=True)
 async def es_client():
     """Фикстура создания коннекта Elasticsearch"""
     client = AsyncElasticsearch(ELASTIC_CONFIG)
@@ -32,7 +33,7 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest_asyncio.fixture(scope='session', autouse=True)
 async def redis():
     """Фикстура создания коннекта redis"""
     redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding='utf-8', decode_responses=True)
@@ -41,7 +42,7 @@ async def redis():
     await redis.redis.close()
 
 
-@pytest.fixture(scope='session')
+@pytest_asyncio.fixture(scope='session')
 async def fastapi_client():
     """Фикстура создания коннекта fastapi"""
     client = AsyncClient(app=app, base_url=SERVICE_URL)
@@ -49,7 +50,7 @@ async def fastapi_client():
     await client.aclose()
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest_asyncio.fixture(scope='session', autouse=True)
 async def drop_indexes(es_client):
     """Фикстура удаления индексов из Elasticsearch после завершения тестирования"""
     models = (Genre, Film, Person,)
@@ -58,14 +59,14 @@ async def drop_indexes(es_client):
         await es_client.indices.delete(index=model.ModelConfig.es_index)
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest_asyncio.fixture(scope='session', autouse=True)
 async def drop_cache(redis):
     """Фикстура очистки кеша после завершения тестирования"""
     yield redis
     await redis.flushall()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def create_list_genres():
     """Фикстура создания списка жанров"""
     genres = await GenreFactory.async_create_batch(randint(1, 10))
@@ -73,7 +74,7 @@ async def create_list_genres():
     await clean_index(genres)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def create_one_genre():
     """Фикстура создания одного жанра"""
     genre = await GenreFactory.async_create()
@@ -81,7 +82,7 @@ async def create_one_genre():
     await clean_index(genre)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def create_list_films():
     """Фикстура создания списка фильмов"""
     films = await FilmFactory.async_create_batch(randint(1, 10))
@@ -89,7 +90,7 @@ async def create_list_films():
     await clean_index(films)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def create_one_film(create_list_genres, create_list_persons):
     """Фикстура для создания фильма. Для фильма создаются жанры и персоны.
     Передаются в фабрику фильмов для создания фильма"""
@@ -103,7 +104,7 @@ async def create_one_film(create_list_genres, create_list_persons):
     await clean_index(film)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def create_one_person(create_list_films):
     """Фикстура создания одной персоны с привязанными к ней фильмами"""
     films = create_list_films
@@ -113,7 +114,7 @@ async def create_one_person(create_list_films):
     await clean_index(person)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def create_list_persons():
     """Фикстура создания списка персон"""
     persons = await PersonFactory.async_create_batch(randint(3, 10))
