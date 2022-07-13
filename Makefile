@@ -10,6 +10,12 @@ build:
 up:
 	docker-compose up -d $(c)
 
+tests_run:
+	docker-compose -f api_service/tests/functional/docker-compose.yml up --abort-on-container-exit tests
+
+tests_down:
+	docker-compose -f api_service/tests/functional/docker-compose.yml down
+
 down:
 	docker-compose down
 
