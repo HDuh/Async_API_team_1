@@ -11,7 +11,8 @@ ENV PYTEST_RUN_CONFIG True
 COPY ./tests/functional/requirements.txt ./tests/functional/
 
 RUN pip install --upgrade pip --no-cache-dir\
-    && pip install -r ./tests/functional/requirements.txt
+    && pip install -r ./tests/functional/requirements.txt \
+    && pip uninstall pytest-trio
 
 COPY ../../ .
 CMD python ./src/waiters.py && python -m pytest -c ./tests/functional/pytest.ini

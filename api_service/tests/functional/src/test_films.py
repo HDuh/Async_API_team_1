@@ -7,8 +7,9 @@ from src.api.v1.schemas import FilmApiShortSchema, FilmApiSchema
 from tests.functional.utils import uuid_to_str
 
 
-@pytest.mark.anyio
-@pytest.mark.asyncio
+pytestmark = pytest.mark.asyncio
+
+
 async def test_all_films(create_list_films, fastapi_client):
     """Тест на получение списка фильмов"""
     films = create_list_films
@@ -17,14 +18,14 @@ async def test_all_films(create_list_films, fastapi_client):
         for film in films
     ]
     response = await fastapi_client.get("/api_service/v1/films/")
+    response_sorted_list = sorted(response.json(), key=lambda d: d['id'])
+    expected_sorted_list = sorted(expected_structure, key=lambda d: d['id'])
 
     assert response.status_code == HTTPStatus.OK
     assert len(films) == len(response.json())
-    assert expected_structure == response.json()
+    assert expected_sorted_list == response_sorted_list
 
 
-@pytest.mark.anyio
-@pytest.mark.asyncio
 async def test_film_by_id(create_one_film, fastapi_client):
     """Тест на получение фильма по id"""
     film = create_one_film
@@ -36,8 +37,6 @@ async def test_film_by_id(create_one_film, fastapi_client):
     assert expected_structure == response.json()
 
 
-@pytest.mark.anyio
-@pytest.mark.asyncio
 async def test_search_film(create_list_films, fastapi_client):
     """Тест на поиск в фильмах"""
     films = create_list_films
@@ -47,4 +46,4 @@ async def test_search_film(create_list_films, fastapi_client):
                                         follow_redirects=True)
 
     assert response.status_code == HTTPStatus.OK
-    assert expected_structure == response.json()
+    assert response.json() >= expected_structure

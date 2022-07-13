@@ -33,7 +33,7 @@ def event_loop():
     loop.close()
 
 
-@pytest_asyncio.fixture(scope='session', autouse=True)
+@pytest_asyncio.fixture(scope='session')
 async def redis():
     """Фикстура создания коннекта redis"""
     redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding='utf-8', decode_responses=True)
