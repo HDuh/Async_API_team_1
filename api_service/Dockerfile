@@ -13,4 +13,6 @@ RUN pip install --upgrade pip --no-cache-dir \
 
 COPY . .
 
-ENTRYPOINT python ./src/waiters.py && python ./src/main.py
+CMD python ./src/waiter_elastic.py\
+    && python ./src/waiter_redis.py\
+    && python ./src/main.py
