@@ -15,4 +15,7 @@ RUN pip install --upgrade pip --no-cache-dir\
     && pip uninstall pytest-trio
 
 COPY ../../ .
-CMD python ./src/waiters.py && python -m pytest -c ./tests/functional/pytest.ini
+CMD python ./src/waiters.py\
+    && python ./tests/functional/utils/waiter_elastic.py\
+    && python ./tests/functional/utils/waiter_redis.py\
+    && python -m pytest -c ./tests/functional/pytest.ini

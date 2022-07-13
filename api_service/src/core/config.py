@@ -15,6 +15,7 @@ __all__ = (
     'BASE_DIR',
     'ELASTIC_CONFIG',
     'REDIS_CONFIG',
+    'REDIS_CONFIG_DICT',
     'CACHE_EXPIRE_IN_SECONDS',
     'ELASTIC_INDEX_SUFFIX',
     'BACKOFF_CONFIG',
@@ -64,6 +65,7 @@ class BackoffSettings(BaseSettings):
 ELASTIC_CONFIG = ElasticSettings().get_settings()
 REDIS_CONFIG = RedisSettings().get_settings()
 BACKOFF_CONFIG = BackoffSettings().dict()
+REDIS_CONFIG_DICT = RedisSettings().dict()
 
 # Суффикс для индекса. Дополняет имя основного индекса для создания тестового
 ELASTIC_INDEX_SUFFIX = ''

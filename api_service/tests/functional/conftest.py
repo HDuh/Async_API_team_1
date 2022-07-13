@@ -59,9 +59,9 @@ async def drop_indexes(es_client):
         await es_client.indices.delete(index=model.ModelConfig.es_index)
 
 
-@pytest_asyncio.fixture(scope='session', autouse=True)
+@pytest_asyncio.fixture(autouse=True)
 async def drop_cache(redis):
-    """Фикстура очистки кеша после завершения тестирования"""
+    """Фикстура очистки кеша после каждого теста"""
     yield redis
     await redis.flushall()
 
