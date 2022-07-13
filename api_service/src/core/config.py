@@ -1,7 +1,9 @@
 import os
 import warnings
 from logging import config as logging_config
+from typing import Callable
 
+import backoff
 from dotenv import load_dotenv
 from elasticsearch import ElasticsearchDeprecationWarning
 from pydantic import BaseSettings, Field
@@ -13,7 +15,10 @@ __all__ = (
     'BASE_DIR',
     'ELASTIC_CONFIG',
     'REDIS_CONFIG',
+    'REDIS_CONFIG_DICT',
     'CACHE_EXPIRE_IN_SECONDS',
+    'ELASTIC_INDEX_SUFFIX',
+    'BACKOFF_CONFIG',
 )
 
 load_dotenv()
@@ -38,7 +43,7 @@ class ElasticSettings(BaseSettings):
     host: str = Field(..., env='ELASTICSEARCH_HOST')
     port: int = Field(..., env='ELASTICSEARCH_PORT')
 
-    def ger_settings(self):
+    def get_settings(self):
         return [f'{self.host}:{self.port}']
 
 
@@ -51,5 +56,18 @@ class RedisSettings(BaseSettings):
         return f'redis://{self.host}:{self.port}'
 
 
-ELASTIC_CONFIG = ElasticSettings().ger_settings()
+class BackoffSettings(BaseSettings):
+    wait_gen: Callable = Field(backoff.expo)
+    exception: type = Field(Exception)
+    max_tries: int = Field(..., env='BACKOFF_MAX_RETRIES')
+
+
+ELASTIC_CONFIG = ElasticSettings().get_settings()
 REDIS_CONFIG = RedisSettings().get_settings()
+BACKOFF_CONFIG = BackoffSettings().dict()
+REDIS_CONFIG_DICT = RedisSettings().dict()
+
+# Суффикс для индекса. Дополняет имя основного индекса для создания тестового
+ELASTIC_INDEX_SUFFIX = ''
+if PYTEST_RUN := os.getenv('PYTEST_RUN_CONFIG', False):
+    ELASTIC_INDEX_SUFFIX = '_test'

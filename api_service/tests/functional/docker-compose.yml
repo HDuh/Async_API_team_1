@@ -1,0 +1,36 @@
+version: "3.8"
+
+volumes:
+  elasticdata:
+  redisdata:
+
+services:
+  redis:
+    image: redis:6-alpine
+    container_name: REDISCACHE_team_1
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  elasticsearch:
+    image: elasticsearch:7.17.4
+    container_name: ELASTICSEARCH_team_1
+    volumes:
+      - elasticdata:/usr/src/elasticsearch/data
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+
+  tests:
+    container_name: TESTS_team_1
+    build:
+      context: ../../
+      dockerfile: ./tests/functional/Dockerfile
+    env_file:
+      - ../../../.env
+    depends_on:
+      - elasticsearch
+      - redis

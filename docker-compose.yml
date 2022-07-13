@@ -17,9 +17,8 @@ services:
       - elasticsearch
       - database
     env_file:
-      - ./docker.env
+      - .env
     restart: always
-
 
   fastapi:
     build:
@@ -29,7 +28,7 @@ services:
     depends_on:
       - etl
     env_file:
-      - ./docker.env
+      - .env
     ports:
       - "8000:8000"
     restart: always
@@ -52,7 +51,6 @@ services:
       - $HOME/postgresql/data:/var/lib/postgresql/data/
     restart: always
 
-
   elasticsearch:
     image: elasticsearch:7.17.4
     environment:
@@ -63,7 +61,6 @@ services:
     ports:
       - '9200:9200'
     restart: always
-
 
   redis:
     image: redis:6-alpine
