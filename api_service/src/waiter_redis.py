@@ -19,9 +19,9 @@ def wait_for_redis():
     with redis_client() as re_client:
         if re_client.ping():
             re_client.flushall()  # очистка кэша
-            logging.info('Соединение с REDIS установлено')
+            logging.info('REDIS connected')
             return
-        raise ConnectionError('REDIS NO PING')
+        raise ConnectionError('REDIS NOT PING')
 
 
 if __name__ == '__main__':

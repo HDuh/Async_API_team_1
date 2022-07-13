@@ -18,7 +18,7 @@ def elastic_client():
 def elastic_wait():
     with elastic_client() as es_client:
         if es_client.ping():
-            logging.info('Соединение с ELASTICSEARCH установлено')
+            logging.info('ELASTICSEARCH connected')
             return
         raise ConnectionError('ELASTICSEARCH NO PING')
 
