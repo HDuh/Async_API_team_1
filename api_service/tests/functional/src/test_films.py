@@ -7,7 +7,6 @@ import pytest
 from src.api.v1.schemas import FilmApiShortSchema, FilmApiSchema
 from tests.functional.utils import uuid_to_str
 
-
 pytestmark = pytest.mark.asyncio
 
 

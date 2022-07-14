@@ -10,7 +10,6 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_all_genres(create_list_genres, fastapi_client, redis):
-
     genres = create_list_genres
     expected_structure = [
         uuid_to_str(GenreApiSchema.build_from_model(genre)).__dict__

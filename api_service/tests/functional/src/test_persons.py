@@ -49,7 +49,6 @@ async def test_person_by_id(create_one_person, fastapi_client, redis):
     assert bad_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-
 async def test_search_film(create_list_persons, fastapi_client, redis):
     """Тест на поиск в персонах"""
     persons = create_list_persons
