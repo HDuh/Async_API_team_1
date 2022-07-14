@@ -1,28 +1,23 @@
 import asyncio
 from random import randint
 
-import aioredis
 import pytest
 import pytest_asyncio
-from elasticsearch import AsyncElasticsearch
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
 from httpx import AsyncClient
 
-from src.core import REDIS_CONFIG, PROJECT_NAME, ELASTIC_CONFIG
-from src.main import app
-from src.models import Genre, Film, Person
+from src.db.elastic import get_elastic
+from src.db.redis import get_redis
+from src.main import app, models
 from tests.functional.utils import clean_index, RoleTypes
 from .settings import SERVICE_URL
 from .testdata.factories import GenreFactory, FilmFactory, PersonFactory
 
 
-@pytest_asyncio.fixture(scope='session', autouse=True)
-async def es_client():
-    """Фикстура создания коннекта Elasticsearch"""
-    client = AsyncElasticsearch(ELASTIC_CONFIG)
+@pytest_asyncio.fixture(scope='session')
+async def redis_client():
+    """Фикстура получения коннекта redis"""
+    client = await get_redis()
     yield client
-    await client.close()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -34,36 +29,30 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(scope='session')
-async def redis():
-    """Фикстура создания коннекта redis"""
-    redis.redis = await aioredis.from_url(REDIS_CONFIG, encoding='utf-8', decode_responses=True)
-    FastAPICache.init(RedisBackend(redis.redis), prefix=f'test_{PROJECT_NAME}_cache')
-    yield redis.redis
-    await redis.redis.close()
-
-
-@pytest_asyncio.fixture(scope='session')
+@pytest.mark.asyncio
 async def fastapi_client():
-    """Фикстура создания коннекта fastapi"""
+    """Фикстура создания клиента fastapi"""
     client = AsyncClient(app=app, base_url=SERVICE_URL)
+    await app.router.startup()
     yield client
+    await app.router.shutdown()
     await client.aclose()
 
 
-@pytest_asyncio.fixture(scope='session', autouse=True)
-async def drop_indexes(es_client):
+@pytest_asyncio.fixture(scope='session')
+async def drop_indexes():
     """Фикстура удаления индексов из Elasticsearch после завершения тестирования"""
-    models = (Genre, Film, Person,)
     yield
+    es_client = await get_elastic()
     for model in models:
         await es_client.indices.delete(index=model.ModelConfig.es_index)
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def drop_cache(redis):
+async def drop_cache(redis_client):
     """Фикстура очистки кеша после каждого теста"""
-    yield redis
-    await redis.flushall()
+    yield
+    await redis_client.flushall()
 
 
 @pytest_asyncio.fixture
