@@ -29,16 +29,16 @@ logs:
 	docker-compose logs --tail=100
 
 tests_run:
-	 docker-compose -f api_service/tests/functional/docker-compose.yml build\
- 	&& docker-compose -f api_service/tests/functional/docker-compose.yml up --abort-on-container-exit tests\
- 	&& docker-compose -f api_service/tests/functional/docker-compose.yml down
+	 docker-compose -f api_service/tests/functional/docker-compose_tests.yml build\
+ 	&& docker-compose -f api_service/tests/functional/docker-compose_tests.yml up --abort-on-container-exit tests\
+ 	&& docker-compose -f api_service/tests/functional/docker-compose_tests.yml down
 
 tests_up:
-	docker-compose -f api_service/tests/functional/docker-compose.yml build\
- 	&& docker-compose -f api_service/tests/functional/docker-compose.yml up --abort-on-container-exit tests
+	docker-compose -f api_service/tests/functional/docker-compose_tests.yml build\
+ 	&& docker-compose -f api_service/tests/functional/docker-compose_tests.yml up --abort-on-container-exit tests
 
 tests_down:
-	docker-compose -f api_service/tests/functional/docker-compose.yml down
+	docker-compose -f api_service/tests/functional/docker-compose_tests.yml down
 
 drop-state:
 	docker-compose exec redis redis-cli FLUSHDB
