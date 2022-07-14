@@ -18,8 +18,8 @@ async def test_all_persons(create_list_persons, fastapi_client, redis):
         for person in persons
     ]
     cache_size = await redis.dbsize()
-    response = await fastapi_client.get("/api_service/v1/persons/")
 
+    response = await fastapi_client.get("/api_service/v1/persons/")
     response_sorted_list = sorted(response.json(), key=lambda d: d['full_name'])
     expected_sorted_list = sorted(expected_structure, key=lambda d: d['full_name'])
 
@@ -41,10 +41,16 @@ async def test_person_by_id(create_one_person, fastapi_client, redis):
     assert expected_structure == response.json()
     assert await redis.dbsize() == cache_size + 1
 
+
+async def test_person_by_id_not_exist(fastapi_client):
+    """Тест на несуществующий id"""
     test_id = uuid.uuid4()
     bad_response = await fastapi_client.get(f"/api_service/v1/persons/{test_id}")
     assert bad_response.status_code == HTTPStatus.NOT_FOUND
 
+
+async def test_person_by_id_incorrect(fastapi_client):
+    """Тест на некорректный id"""
     bad_response = await fastapi_client.get("/api_service/v1/persons/test_data")
     assert bad_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
@@ -62,6 +68,9 @@ async def test_search_film(create_list_persons, fastapi_client, redis):
     assert response.json() >= expected_structure
     assert await redis.dbsize() == cache_size + 1
 
+
+async def test_search_film_not_exist(fastapi_client):
+    """Тест на поиск несуществующего рез-та в персонах"""
     bad_response = await fastapi_client.get("/api_service/v1/persons/search/?query=test_name",
                                             follow_redirects=True)
     assert bad_response.status_code == HTTPStatus.NOT_FOUND
@@ -85,9 +94,15 @@ async def test_person_films_by_id(create_one_film, fastapi_client, redis):
     assert expected_structure == response.json()
     assert await redis.dbsize() == cache_size + 1
 
+
+async def test_person_films_by_id_not_exist(fastapi_client):
+    """Тест на не существующий id персоны"""
     test_id = uuid.uuid4()
     bad_response = await fastapi_client.get(f"/api_service/v1/persons/{test_id}/film")
     assert bad_response.status_code == HTTPStatus.NOT_FOUND
 
+
+async def test_person_films_by_id_incorrect(fastapi_client):
+    """Тест на не корректный id персоны"""
     bad_response = await fastapi_client.get("/api_service/v1/persons/test_some_id/film")
     assert bad_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY

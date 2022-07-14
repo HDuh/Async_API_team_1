@@ -10,14 +10,15 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_all_genres(create_list_genres, fastapi_client, redis):
+    """Тест на получение списка жанров"""
     genres = create_list_genres
     expected_structure = [
         uuid_to_str(GenreApiSchema.build_from_model(genre)).__dict__
         for genre in genres
     ]
     cache_size = await redis.dbsize()
-    response = await fastapi_client.get("/api_service/v1/genres/")
 
+    response = await fastapi_client.get("/api_service/v1/genres/")
     response_sorted_list = sorted(response.json(), key=lambda d: d['name'])
     expected_sorted_list = sorted(expected_structure, key=lambda d: d['name'])
 
@@ -28,6 +29,7 @@ async def test_all_genres(create_list_genres, fastapi_client, redis):
 
 
 async def test_genre_by_id(create_one_genre, fastapi_client, redis):
+    """Тест на получение жанра по id"""
     cache_size = await redis.dbsize()
 
     response = await fastapi_client.get(f"/api_service/v1/genres/{create_one_genre.id}")
@@ -36,9 +38,15 @@ async def test_genre_by_id(create_one_genre, fastapi_client, redis):
     assert create_one_genre.id == response.json().get('id')
     assert await redis.dbsize() == cache_size + 1
 
+
+async def test_genre_by_id_not_exist(fastapi_client):
+    """Тест на не существующий id"""
     test_id = uuid.uuid4()
     bad_response = await fastapi_client.get(f"/api_service/v1/genres/{test_id}")
     assert bad_response.status_code == HTTPStatus.NOT_FOUND
 
+
+async def test_genre_by_id_incorrect(fastapi_client):
+    """Тест на не корректный id"""
     bad_response = await fastapi_client.get("/api_service/v1/genres/test_data")
     assert bad_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
