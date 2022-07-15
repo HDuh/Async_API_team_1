@@ -30,7 +30,7 @@ async def test_all_genres(create_list_genres, fastapi_client, redis):
 
 
 async def test_all_genres_pagination_size(create_list_genres, fastapi_client):
-    """Тест на правильность размера пагинаци"""
+    """Тест на правильность размера пагинации"""
     _ = create_list_genres
     random_size = random.randint(1, 10)
 
@@ -41,7 +41,7 @@ async def test_all_genres_pagination_size(create_list_genres, fastapi_client):
 
 
 async def test_all_genres_pagination_page(create_list_genres, fastapi_client):
-    """Тест на правильность данных на страничке"""
+    """Тест на правильность данных на странице"""
     genres = create_list_genres
     expected_structure = [
         uuid_to_str(GenreApiSchema.build_from_model(genre)).__dict__
@@ -87,14 +87,14 @@ async def test_all_genres_pagination_inf_size(create_list_genres, fastapi_client
 
 
 async def test_all_genres_pagination_incorrect_size(create_list_genres, fastapi_client):
-    """Тест на не корректное значение размера страницы"""
+    """Тест на некорректное значение размера страницы"""
     _ = create_list_genres
     response = await fastapi_client.get("/api_service/v1/genres/?page_page=2&page_size=some_sting")
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 async def test_all_genres_pagination_incorrect_page(create_list_genres, fastapi_client):
-    """Тест на не корректное значение страницы"""
+    """Тест на некорректное значение страницы"""
     _ = create_list_genres
     response = await fastapi_client.get("/api_service/v1/genres/?page_page=some_string&page_size=4")
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
@@ -112,13 +112,13 @@ async def test_genre_by_id(create_one_genre, fastapi_client, redis):
 
 
 async def test_genre_by_id_not_exist(fastapi_client):
-    """Тест на не существующий id"""
+    """Тест на несуществующий id"""
     test_id = uuid.uuid4()
     bad_response = await fastapi_client.get(f"/api_service/v1/genres/{test_id}")
     assert bad_response.status_code == HTTPStatus.NOT_FOUND
 
 
 async def test_genre_by_id_incorrect(fastapi_client):
-    """Тест на не корректный id"""
+    """Тест на некорректный id"""
     bad_response = await fastapi_client.get("/api_service/v1/genres/test_data")
     assert bad_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
