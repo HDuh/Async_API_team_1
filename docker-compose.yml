@@ -64,8 +64,8 @@ services:
   redis:
     image: redis:6-alpine
     container_name: rediscache_team_1
-    restart: always
     volumes:
       - redisdata:/data
     ports:
       - '6379:6379'
+    restart: always
