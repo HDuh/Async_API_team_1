@@ -28,7 +28,7 @@ class ModelManager:
                 index=self.model.ModelConfig.es_index,
                 body=QueriesManager.create_query(self.model, **kwargs),
                 sort=QueriesManager.transform_sorting(sort),
-                from_=(page - 1) * (size + 1),
+                from_=0 if page == 1 else (page - 1) * size,
                 size=size,
             )
             return [self.model(**item['_source']) for item in res['hits']['hits']]
