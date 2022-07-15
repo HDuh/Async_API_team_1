@@ -15,7 +15,7 @@ class FilmFactory(ElasticBaseFactory):
     """
     id = factory.Faker('uuid4')
     title = factory.Faker('company')
-    imdb_rating = fuzzy.FuzzyFloat(low=0, high=10.0, precision=1)
+    imdb_rating = fuzzy.FuzzyDecimal(0, 10, precision=3)
     description = factory.Faker('paragraph')
     genre = factory.ListFactory()
     actors = factory.ListFactory()

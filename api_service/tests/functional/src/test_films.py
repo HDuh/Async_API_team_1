@@ -1,6 +1,6 @@
+import random
 import uuid
 from http import HTTPStatus
-import random
 
 import pytest
 
@@ -51,53 +51,21 @@ async def test_all_films_pagination_page(create_list_films, fastapi_client):
     page = random.randint(1, 4)
     page_size = 2
     from_ = 0 if page == 1 else (page - 1) * page_size
-    page_structure = expected_sorted_list[from_:from_+page_size]
+    page_structure = expected_sorted_list[from_:from_ + page_size]
 
-    response = await fastapi_client.get(f"/api_service/v1/films/?sort=-imdb_rating&page_page={page}&page_size={page_size}")
+    response = await fastapi_client.get(f"/api_service/v1/films/?"
+                                        f"sort=-imdb_rating&page_page={page}&page_size={page_size}")
 
     assert response.status_code == HTTPStatus.OK
     assert len(page_structure) == len(response.json())
 
 
-async def test_all_films_pagination_zero_size(create_list_films, fastapi_client):
+@pytest.mark.parametrize("page_page", [0, float('inf'), 'some_page'])
+@pytest.mark.parametrize("page_size", [0, float('inf'), 'some_size'])
+async def test_all_films_pagination_bad_cases(create_list_films, fastapi_client, page_page, page_size):
     """Тест на нулевой размер страницы"""
     _ = create_list_films
-    response = await fastapi_client.get("/api_service/v1/films/?page_page=1&page_size=0")
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-
-
-async def test_all_films_pagination_zero_page(create_list_films, fastapi_client):
-    """Тест на нулевую страницу"""
-    _ = create_list_films
-    response = await fastapi_client.get("/api_service/v1/films/?page_page=0&page_size=5")
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-
-
-async def test_all_films_pagination_inf_page(create_list_films, fastapi_client):
-    """Тест на бесконечную страницу"""
-    _ = create_list_films
-    response = await fastapi_client.get(f"/api_service/v1/films/?page_page={float('inf')}&page_size=5")
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-
-
-async def test_all_films_pagination_inf_size(create_list_films, fastapi_client):
-    """Тест на бесконечный размер страницы"""
-    _ = create_list_films
-    response = await fastapi_client.get(f"/api_service/v1/films/?page_page=2&page_size={float('inf')}")
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-
-
-async def test_all_films_pagination_incorrect_size(create_list_films, fastapi_client):
-    """Тест на некорректное значение размера страницы"""
-    _ = create_list_films
-    response = await fastapi_client.get("/api_service/v1/films/?page_page=2&page_size=some_sting")
-    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-
-
-async def test_all_films_pagination_incorrect_page(create_list_films, fastapi_client):
-    """Тест на некорректное значение страницы"""
-    _ = create_list_films
-    response = await fastapi_client.get("/api_service/v1/films/?page_page=some_string&page_size=4")
+    response = await fastapi_client.get(f"/api_service/v1/films/?page_page={page_page}&page_size={page_size}")
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
@@ -115,19 +83,17 @@ async def test_film_by_id(create_one_film, fastapi_client, redis_client):
     assert await redis_client.dbsize() == cache_size + 1
 
 
-async def test_film_by_id_not_exist(fastapi_client):
-    """Тест на несуществующий id"""
-    test_id = uuid.uuid4()
-
-    not_exist_response = await fastapi_client.get(f"/api_service/v1/films/{test_id}")
-
-    assert not_exist_response.status_code == HTTPStatus.NOT_FOUND
-
-
-async def test_film_by_id_incorrect(fastapi_client):
-    """Тест на некорректный id"""
-    bad_response = await fastapi_client.get("/api_service/v1/films/test_data")
-    assert bad_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+@pytest.mark.parametrize(
+    "test_id, expected",
+    [
+        (uuid.uuid4(), HTTPStatus.NOT_FOUND),
+        ("incorrect_test_id", HTTPStatus.UNPROCESSABLE_ENTITY)
+    ]
+)
+async def test_films_by_id_bad_cases(fastapi_client, test_id, expected):
+    """Тест на несуществующий и некорректный id"""
+    response = await fastapi_client.get(f"/api_service/v1/films/{test_id}")
+    assert response.status_code == expected
 
 
 async def test_search_film(create_list_films, fastapi_client, redis_client):
@@ -164,8 +130,7 @@ async def test_all_films_sort_asc(create_list_films, fastapi_client):
     response = await fastapi_client.get(f"/api_service/v1/films/?sort=imdb_rating")
 
     assert response.status_code == HTTPStatus.OK
-    assert expected[0] == response.json()[0]
-    assert expected[-1] == response.json()[-1]
+    assert expected == response.json()
 
 
 async def test_all_films_sort_desc(create_list_films, fastapi_client):
@@ -180,6 +145,13 @@ async def test_all_films_sort_desc(create_list_films, fastapi_client):
     response = await fastapi_client.get(f"/api_service/v1/films/?sort=-imdb_rating")
 
     assert response.status_code == HTTPStatus.OK
-    assert expected[0] == response.json()[0]
+    assert expected == response.json()
 
-    assert expected[-1] == response.json()[-1]
+
+# async def test_all_films_sort_incorrect(fastapi_client):
+#     """Тест на правильность сортировки фильмов по убыванию"""
+#     try:
+#         response = await fastapi_client.get(f"/api_service/v1/films/?sort=incorrect_sort")
+#     except elasticsearch.exceptions.RequestError:
+#         print(response)
+#         assert True

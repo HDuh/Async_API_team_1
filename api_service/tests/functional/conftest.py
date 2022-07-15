@@ -1,5 +1,4 @@
 import asyncio
-from random import randint
 
 import pytest
 import pytest_asyncio
@@ -39,7 +38,7 @@ async def fastapi_client():
     await client.aclose()
 
 
-@pytest_asyncio.fixture(scope='session')
+@pytest_asyncio.fixture(scope='session', )
 async def drop_indexes():
     """Фикстура удаления индексов из Elasticsearch после завершения тестирования"""
     yield
