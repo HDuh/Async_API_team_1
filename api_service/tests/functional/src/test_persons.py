@@ -34,6 +34,7 @@ async def test_person_by_id(create_one_person, fastapi_client, redis_client):
     person = create_one_person
     expected_structure = uuid_to_str(PersonApiSchema.build_from_model(person))
     cache_size = await redis_client.dbsize()
+
     response = await fastapi_client.get(f"/api_service/v1/persons/{person.id}")
 
     assert response.status_code == HTTPStatus.OK
@@ -132,6 +133,7 @@ async def test_search_film(create_list_persons, fastapi_client, redis_client):
     person_for_find = random.choice(persons)
     expected_structure = [uuid_to_str(PersonApiSchema.build_from_model(person_for_find)).__dict__]
     cache_size = await redis_client.dbsize()
+
     response = await fastapi_client.get(f"/api_service/v1/persons/search/?query={person_for_find.full_name}",
                                         follow_redirects=True)
 
@@ -159,6 +161,7 @@ async def test_person_films_by_id(create_one_film, fastapi_client, redis_client)
     selected_person_id = random.choice(persons_ids)
     expected_structure = [uuid_to_str(PersonFilmApiSchema.build_from_model(film)).__dict__]
     cache_size = await redis_client.dbsize()
+
     response = await fastapi_client.get(f"/api_service/v1/persons/{selected_person_id}/film")
 
     assert response.status_code == HTTPStatus.OK

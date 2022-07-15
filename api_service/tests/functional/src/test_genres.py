@@ -29,8 +29,6 @@ async def test_all_genres(create_list_genres, fastapi_client, redis_client):
     assert await redis_client.dbsize() == cache_size + 1
 
 
-async def test_genre_by_id(create_one_genre, fastapi_client, redis_client):
-    cache_size = await redis_client.dbsize()
 async def test_all_genres_pagination_size(create_list_genres, fastapi_client):
     """Тест на правильность размера пагинации"""
     _ = create_list_genres
@@ -40,24 +38,6 @@ async def test_all_genres_pagination_size(create_list_genres, fastapi_client):
 
     assert response.status_code == HTTPStatus.OK
     assert random_size == len(response.json())
-
-
-async def test_all_genres_pagination_page(create_list_genres, fastapi_client):
-    """Тест на правильность данных на странице"""
-    genres = create_list_genres
-    expected_structure = [
-        uuid_to_str(GenreApiSchema.build_from_model(genre)).__dict__
-        for genre in genres
-    ]
-    page = 4
-    page_size = 2
-    from_ = 0 if page == 1 else (page - 1) * page_size
-    page_structure = expected_structure[from_:from_+page_size]
-
-    response = await fastapi_client.get(f"/api_service/v1/genres/?page_page={page}&page_size={page_size}")
-
-    assert response.status_code == HTTPStatus.OK
-    assert page_structure == response.json()
 
 
 async def test_all_genres_pagination_zero_size(create_list_genres, fastapi_client):
@@ -102,9 +82,9 @@ async def test_all_genres_pagination_incorrect_page(create_list_genres, fastapi_
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-async def test_genre_by_id(create_one_genre, fastapi_client, redis):
+async def test_genre_by_id(create_one_genre, fastapi_client, redis_client):
     """Тест на получение жанра по id"""
-    cache_size = await redis.dbsize()
+    cache_size = await redis_client.dbsize()
 
     response = await fastapi_client.get(f"/api_service/v1/genres/{create_one_genre.id}")
 

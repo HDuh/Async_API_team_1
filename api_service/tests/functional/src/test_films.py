@@ -18,6 +18,7 @@ async def test_all_films(create_list_films, fastapi_client, redis_client):
         for film in films
     ]
     cache_size = await redis_client.dbsize()
+
     response = await fastapi_client.get("/api_service/v1/films/")
     response_sorted_list = sorted(response.json(), key=lambda d: d['id'])
     expected_sorted_list = sorted(expected_structure, key=lambda d: d['id'])
@@ -28,7 +29,6 @@ async def test_all_films(create_list_films, fastapi_client, redis_client):
     assert await redis_client.dbsize() == cache_size + 1
 
 
-async def test_film_by_id(create_one_film, fastapi_client, redis_client):
 async def test_all_films_pagination_size(create_list_films, fastapi_client):
     """Тест на правильность размера пагинаци"""
     _ = create_list_films
@@ -101,11 +101,12 @@ async def test_all_films_pagination_incorrect_page(create_list_films, fastapi_cl
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-async def test_film_by_id(create_one_film, fastapi_client, redis):
+async def test_film_by_id(create_one_film, fastapi_client, redis_client):
     """Тест на получение фильма по id"""
     film = create_one_film
     expected_structure = uuid_to_str(FilmApiSchema.build_from_model(film))
     cache_size = await redis_client.dbsize()
+
     response = await fastapi_client.get(f"/api_service/v1/films/{film.id}")
 
     assert response.status_code == HTTPStatus.OK
@@ -135,6 +136,7 @@ async def test_search_film(create_list_films, fastapi_client, redis_client):
     film_for_find = random.choice(films)
     expected_structure = [uuid_to_str(FilmApiShortSchema.build_from_model(film_for_find)).__dict__]
     cache_size = await redis_client.dbsize()
+
     response = await fastapi_client.get(f"/api_service/v1/films/search/?query={film_for_find.title}",
                                         follow_redirects=True)
 
@@ -179,4 +181,5 @@ async def test_all_films_sort_desc(create_list_films, fastapi_client):
 
     assert response.status_code == HTTPStatus.OK
     assert expected[0] == response.json()[0]
+
     assert expected[-1] == response.json()[-1]
