@@ -43,9 +43,9 @@ async def test_person_by_id(create_one_person, fastapi_client, redis_client):
     assert await redis_client.dbsize() == cache_size + 1
 
 
-async def test_all_persons_pagination_size(create_list_persons, fastapi_client):
+async def test_all_persons_pagination_size(create_list_persons_for_pagination, fastapi_client):
     """Тест на правильность размера пагинаци"""
-    _ = create_list_persons
+    _ = create_list_persons_for_pagination
     random_size = random.randint(1, 10)
 
     response = await fastapi_client.get(f"/api_service/v1/persons/?page_page=1&page_size={random_size}")
@@ -54,9 +54,9 @@ async def test_all_persons_pagination_size(create_list_persons, fastapi_client):
     assert random_size == len(response.json())
 
 
-async def test_all_persons_pagination_page(create_list_persons, fastapi_client):
+async def test_all_persons_pagination_page(create_list_persons_for_pagination, fastapi_client):
     """Тест на правильность данных на странице"""
-    persons = create_list_persons
+    persons = create_list_persons_for_pagination
     expected_structure = [
         uuid_to_str(PersonApiSchema.build_from_model(person)).__dict__
         for person in persons

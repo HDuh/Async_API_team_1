@@ -1,4 +1,5 @@
 import asyncio
+import random
 
 import pytest
 import pytest_asyncio
@@ -47,9 +48,17 @@ async def drop_cache(redis_client):
 
 
 @pytest_asyncio.fixture
-async def create_list_genres():
-    """Фикстура создания списка жанров"""
+async def create_list_genres_for_pagination():
+    """Фикстура создания списка жанров фиксированной длины"""
     genres = await GenreFactory.async_create_batch(10)
+    yield genres
+    await clean_index(genres)
+
+
+@pytest_asyncio.fixture
+async def create_list_genres():
+    """Фикстура создания списка жанров случайной длины в диапазоне от 1 до 10"""
+    genres = await GenreFactory.async_create_batch(random.randint(1, 10))
     yield genres
     await clean_index(genres)
 
@@ -63,9 +72,17 @@ async def create_one_genre():
 
 
 @pytest_asyncio.fixture
-async def create_list_films():
-    """Фикстура создания списка фильмов"""
+async def create_list_films_for_pagination():
+    """Фикстура создания списка фильмов фиксированной длины"""
     films = await FilmFactory.async_create_batch(10)
+    yield films
+    await clean_index(films)
+
+
+@pytest_asyncio.fixture
+async def create_list_films():
+    """Фикстура создания списка фильмов случайной длины в диапазоне от 1 до 10"""
+    films = await FilmFactory.async_create_batch(random.randint(1, 10))
     yield films
     await clean_index(films)
 
@@ -95,8 +112,16 @@ async def create_one_person(create_list_films):
 
 
 @pytest_asyncio.fixture
-async def create_list_persons():
-    """Фикстура создания списка персон"""
+async def create_list_persons_for_pagination():
+    """Фикстура создания списка персон фиксированной длины"""
     persons = await PersonFactory.async_create_batch(10)
+    yield persons
+    await clean_index(persons)
+
+
+@pytest_asyncio.fixture
+async def create_list_persons():
+    """Фикстура создания списка персон случайной длины в диапазоне от 1 до 10"""
+    persons = await PersonFactory.async_create_batch(random.randint(1, 10))
     yield persons
     await clean_index(persons)

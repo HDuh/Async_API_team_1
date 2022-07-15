@@ -28,9 +28,9 @@ async def test_all_genres(create_list_genres, fastapi_client, redis_client):
     assert await redis_client.dbsize() == cache_size + 1
 
 
-async def test_all_genres_pagination_size(create_list_genres, fastapi_client):
+async def test_all_genres_pagination_size(create_list_genres_for_pagination, fastapi_client):
     """Тест на правильность размера пагинации"""
-    _ = create_list_genres
+    _ = create_list_genres_for_pagination
     random_size = random.randint(1, 10)
 
     response = await fastapi_client.get(f"/api_service/v1/genres/?page_page=1&page_size={random_size}")

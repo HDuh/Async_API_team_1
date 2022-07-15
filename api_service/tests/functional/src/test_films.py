@@ -28,9 +28,9 @@ async def test_all_films(create_list_films, fastapi_client, redis_client):
     assert await redis_client.dbsize() == cache_size + 1
 
 
-async def test_all_films_pagination_size(create_list_films, fastapi_client):
+async def test_all_films_pagination_size(create_list_films_for_pagination, fastapi_client):
     """Тест на правильность размера пагинаци"""
-    _ = create_list_films
+    _ = create_list_films_for_pagination
     random_size = random.randint(1, 10)
 
     response = await fastapi_client.get(f"/api_service/v1/films/?page_page=1&page_size={random_size}")
@@ -39,9 +39,9 @@ async def test_all_films_pagination_size(create_list_films, fastapi_client):
     assert random_size == len(response.json())
 
 
-async def test_all_films_pagination_page(create_list_films, fastapi_client):
+async def test_all_films_pagination_page(create_list_films_for_pagination, fastapi_client):
     """Тест на правильность данных на странице"""
-    films = create_list_films
+    films = create_list_films_for_pagination
     expected_structure = [
         uuid_to_str(FilmApiShortSchema.build_from_model(film)).__dict__
         for film in films
