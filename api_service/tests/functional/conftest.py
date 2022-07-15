@@ -58,7 +58,7 @@ async def drop_cache(redis_client):
 @pytest_asyncio.fixture
 async def create_list_genres():
     """Фикстура создания списка жанров"""
-    genres = await GenreFactory.async_create_batch(randint(1, 10))
+    genres = await GenreFactory.async_create_batch(10)
     yield genres
     await clean_index(genres)
 
@@ -74,7 +74,7 @@ async def create_one_genre():
 @pytest_asyncio.fixture
 async def create_list_films():
     """Фикстура создания списка фильмов"""
-    films = await FilmFactory.async_create_batch(randint(1, 10))
+    films = await FilmFactory.async_create_batch(10)
     yield films
     await clean_index(films)
 
@@ -106,6 +106,6 @@ async def create_one_person(create_list_films):
 @pytest_asyncio.fixture
 async def create_list_persons():
     """Фикстура создания списка персон"""
-    persons = await PersonFactory.async_create_batch(randint(1, 10))
+    persons = await PersonFactory.async_create_batch(10)
     yield persons
     await clean_index(persons)

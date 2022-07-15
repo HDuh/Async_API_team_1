@@ -1,5 +1,4 @@
 import factory
-from factory import fuzzy
 
 from src.models import models
 from tests.functional.settings import GENRES
@@ -15,7 +14,7 @@ class GenreFactory(ElasticBaseFactory):
     Уникальность сгенерированных значений контролирует metaclass MetaModel
     """
     id = factory.Faker('uuid4')
-    name = fuzzy.FuzzyChoice(GENRES)
+    name = factory.Sequence(lambda n: GENRES[n % len(GENRES)])
 
     class Meta:
         model = models.Genre

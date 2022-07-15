@@ -129,8 +129,10 @@ dmypy.json
 .pyre/
 
 # Other
+*.DS_Store
 .idea
 /docker.env
 /.env
 /docker.env
 /api_service/dump.rdb
+/local.env
