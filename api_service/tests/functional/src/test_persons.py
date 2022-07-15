@@ -4,6 +4,7 @@ from http import HTTPStatus
 
 import pytest
 
+from .helpers_for_tests import BAD_ID_CASES, sorted_lists_for_tests_all
 from src.api.v1.schemas import PersonApiSchema, PersonFilmApiSchema
 from tests.functional.utils import uuid_to_str
 
@@ -20,12 +21,11 @@ async def test_all_persons(create_list_persons, fastapi_client, redis_client):
     cache_size = await redis_client.dbsize()
 
     response = await fastapi_client.get("/api_service/v1/persons/")
-    response_sorted_list = sorted(response.json(), key=lambda d: d['full_name'])
-    expected_sorted_list = sorted(expected_structure, key=lambda d: d['full_name'])
+    expected_data, response_data = sorted_lists_for_tests_all(expected_structure, response.json())
 
     assert response.status_code == HTTPStatus.OK
     assert len(persons) == len(response.json())
-    assert response_sorted_list == expected_sorted_list
+    assert expected_data == response_data
     assert await redis_client.dbsize() == cache_size + 1
 
 
@@ -61,7 +61,7 @@ async def test_all_persons_pagination_page(create_list_persons, fastapi_client):
         uuid_to_str(PersonApiSchema.build_from_model(person)).__dict__
         for person in persons
     ]
-    page = 4
+    page = random.randint(1, 4)
     page_size = 2
     from_ = 0 if page == 1 else (page - 1) * page_size
     page_structure = expected_structure[from_:from_+page_size]
@@ -101,7 +101,8 @@ async def test_search_film(create_list_persons, fastapi_client, redis_client):
     expected_structure = [uuid_to_str(PersonApiSchema.build_from_model(person_for_find)).__dict__]
     cache_size = await redis_client.dbsize()
 
-    response = await fastapi_client.get(f"/api_service/v1/persons/search/?query={person_for_find.full_name}",
+    response = await fastapi_client.get(f"/api_service/v1/persons/search/?"
+                                        f"query={person_for_find.full_name}",
                                         follow_redirects=True)
 
     assert response.status_code == HTTPStatus.OK
@@ -136,13 +137,7 @@ async def test_person_films_by_id(create_one_film, fastapi_client, redis_client)
     assert await redis_client.dbsize() == cache_size + 1
 
 
-@pytest.mark.parametrize(
-    "test_id, expected",
-    [
-        (uuid.uuid4(), HTTPStatus.NOT_FOUND),
-        ("incorrect_test_id", HTTPStatus.UNPROCESSABLE_ENTITY)
-    ]
-)
+@pytest.mark.parametrize("test_id, expected", BAD_ID_CASES)
 async def test_persons_by_id_bad_cases(fastapi_client, test_id, expected):
     """Тест на несуществующий и некорректный id"""
     response = await fastapi_client.get(f"/api_service/v1/persons/{test_id}")

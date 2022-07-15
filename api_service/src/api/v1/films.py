@@ -2,6 +2,7 @@ from http import HTTPStatus
 from typing import Any
 from uuid import UUID
 
+import elasticsearch
 from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi_cache.decorator import cache
 
@@ -30,7 +31,11 @@ async def all_films(sort: str | None = None, pagination: Pagination = Depends(),
         - abc: **"imdb_rating"**,
         - desc: **"-imdb_rating"**
     """
-    films = await Film.manager.filter(sort=sort, genre=genre_id, **pagination.dict())
+    try:
+        films = await Film.manager.filter(sort=sort, genre=genre_id, **pagination.dict())
+    except elasticsearch.exceptions.RequestError:
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail='incorrect arguments')
+
     if not films:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='films not found')
     return [FilmApiShortSchema.build_from_model(film) for film in films]
