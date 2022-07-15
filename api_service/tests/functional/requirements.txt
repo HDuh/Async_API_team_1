@@ -9,4 +9,3 @@ orjson==3.7.2
 pytest-asyncio==0.18.3
 pytest==7.1.2
 python-dotenv==0.20.0
-redis==4.3.3

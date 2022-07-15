@@ -7,7 +7,7 @@ volumes:
 services:
   redis:
     image: redis:6-alpine
-    container_name: REDISCACHE_team_1
+    container_name: rediscache_team_1
     restart: always
     ports:
       - "6379:6379"
@@ -16,7 +16,7 @@ services:
 
   elasticsearch:
     image: elasticsearch:7.17.4
-    container_name: ELASTICSEARCH_team_1
+    container_name: elasticsearch_team_1
     volumes:
       - elasticdata:/usr/src/elasticsearch/data
     ports:
@@ -25,7 +25,7 @@ services:
       - discovery.type=single-node
 
   tests:
-    container_name: TESTS_team_1
+    container_name: tests_team_1
     build:
       context: ../../
       dockerfile: ./tests/functional/Dockerfile

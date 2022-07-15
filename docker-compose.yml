@@ -1,17 +1,16 @@
-version: '3.8'
+version: "3.8"
 
 volumes:
   elasticdata:
   redisdata:
   postgres_data:
 
-
 services:
   etl:
     build:
       context: ./etl_service
       dockerfile: Dockerfile
-    container_name: ETL_team_1
+    container_name: etl_team_1
     depends_on:
       - redis
       - elasticsearch
@@ -24,7 +23,7 @@ services:
     build:
       context: ./api_service
       dockerfile: Dockerfile
-    container_name: FASTAPI_team_1
+    container_name: fastapi_team_1
     depends_on:
       - etl
     env_file:
@@ -35,18 +34,18 @@ services:
 
   nginx:
     image: nginx:1.21.6
-    container_name: NGINX_team_1
+    container_name: nginx_team_1
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/configs:/etc/nginx/conf.d:ro
     ports:
-      - '80:80'
+      - "80:80"
     depends_on:
       - fastapi
 
   database:
     image: postgres:13.0-alpine
-    container_name: DATABASE_team_1
+    container_name: database_team_1
     volumes:
       - $HOME/postgresql/data:/var/lib/postgresql/data/
     restart: always
@@ -55,18 +54,18 @@ services:
     image: elasticsearch:7.17.4
     environment:
       - discovery.type=single-node
-    container_name: ELASTICSEARCH_team_1
+    container_name: elasticsearch_team_1
     volumes:
       - elasticdata:/usr/src/elasticsearch/data
     ports:
-      - '9200:9200'
+      - "9200:9200"
     restart: always
 
   redis:
     image: redis:6-alpine
-    container_name: REDISCACHE_team_1
-    restart: always
+    container_name: rediscache_team_1
     volumes:
       - redisdata:/data
     ports:
-      - '6379:6379'
+      - "6379:6379"
+    restart: always

@@ -12,14 +12,7 @@ from .settings import SERVICE_URL
 from .testdata.factories import GenreFactory, FilmFactory, PersonFactory
 
 
-@pytest_asyncio.fixture(scope='session')
-async def redis_client():
-    """Фикстура получения коннекта redis"""
-    client = await get_redis()
-    yield client
-
-
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def event_loop():
     policy = asyncio.get_event_loop_policy()
     loop = policy.new_event_loop()
@@ -38,7 +31,14 @@ async def fastapi_client():
     await client.aclose()
 
 
-@pytest_asyncio.fixture(scope='session', )
+@pytest_asyncio.fixture(scope='session')
+async def redis_client():
+    """Фикстура получения коннекта redis"""
+    client = await get_redis()
+    yield client
+
+
+@pytest_asyncio.fixture(scope='session')
 async def drop_indexes():
     """Фикстура удаления индексов из Elasticsearch после завершения тестирования"""
     yield

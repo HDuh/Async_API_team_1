@@ -1,27 +1,30 @@
+import asyncio
 import logging
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 
 import backoff
-from elasticsearch import Elasticsearch
+from elasticsearch import AsyncElasticsearch
 
 from core.config import ELASTIC_CONFIG, BACKOFF_CONFIG
 
 
-@contextmanager
-def elastic_client():
-    client = Elasticsearch(ELASTIC_CONFIG)
-    yield client
-    client.close()
+@asynccontextmanager
+async def elastic_client():
+    client = AsyncElasticsearch(ELASTIC_CONFIG)
+    try:
+        yield client
+    finally:
+        await client.close()
 
 
 @backoff.on_exception(**BACKOFF_CONFIG)
-def elastic_wait():
-    with elastic_client() as es_client:
-        if es_client.ping():
+async def elastic_wait():
+    async with elastic_client() as es_client:
+        if await es_client.ping():
             logging.info('ELASTICSEARCH connected')
-            return
-        raise ConnectionError('ELASTICSEARCH NO PING')
+        else:
+            raise ConnectionError('ELASTICSEARCH NO PING')
 
 
 if __name__ == '__main__':
-    elastic_wait()
+    asyncio.run(elastic_wait())
