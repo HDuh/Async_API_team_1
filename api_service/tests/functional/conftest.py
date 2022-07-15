@@ -4,7 +4,6 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 
-from src.db.elastic import get_elastic
 from src.db.redis import get_redis
 from src.main import app, models
 from tests.functional.utils import clean_index, RoleTypes
@@ -27,6 +26,8 @@ async def fastapi_client():
     client = AsyncClient(app=app, base_url=SERVICE_URL)
     await app.router.startup()
     yield client
+    for model in models:
+        await model.manager.async_check_or_delete_index()
     await app.router.shutdown()
     await client.aclose()
 
@@ -36,15 +37,6 @@ async def redis_client():
     """Фикстура получения коннекта redis"""
     client = await get_redis()
     yield client
-
-
-@pytest_asyncio.fixture(scope='session')
-async def drop_indexes():
-    """Фикстура удаления индексов из Elasticsearch после завершения тестирования"""
-    yield
-    es_client = await get_elastic()
-    for model in models:
-        await es_client.indices.delete(index=model.ModelConfig.es_index)
 
 
 @pytest_asyncio.fixture(autouse=True)

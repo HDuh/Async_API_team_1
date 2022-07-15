@@ -53,3 +53,10 @@ class ModelManager:
         alias = await es.indices.get_alias()
         if not alias.get(self.model.ModelConfig.es_index):
             await es.indices.create(index=self.model.ModelConfig.es_index, body=self.model.ModelConfig.schema)
+
+    async def async_check_or_delete_index(self):
+        """Проверка или удаление индекса в Elasticsearch"""
+        es = await get_elastic()
+        alias = await es.indices.get_alias()
+        if alias.get(self.model.ModelConfig.es_index):
+            await es.indices.delete(index=self.model.ModelConfig.es_index)
