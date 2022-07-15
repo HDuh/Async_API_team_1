@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 volumes:
   elasticdata:
@@ -39,7 +39,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/configs:/etc/nginx/conf.d:ro
     ports:
-      - '80:80'
+      - "80:80"
     depends_on:
       - fastapi
 
@@ -58,7 +58,7 @@ services:
     volumes:
       - elasticdata:/usr/src/elasticsearch/data
     ports:
-      - '9200:9200'
+      - "9200:9200"
     restart: always
 
   redis:
@@ -67,5 +67,5 @@ services:
     volumes:
       - redisdata:/data
     ports:
-      - '6379:6379'
+      - "6379:6379"
     restart: always
